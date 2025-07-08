@@ -4,6 +4,7 @@
     unique_key = "checkpoint_number",
     cluster_by = ['modified_timestamp::DATE','block_timestamp::DATE'],
     incremental_predicates = ["dynamic_range_predicate", "block_timestamp::date"],
+    merge_exclude_columns = ["inserted_timestamp"],
     tags = ['silver','core']
 ) }}
 

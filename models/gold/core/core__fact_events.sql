@@ -3,6 +3,7 @@
     unique_key = "fact_events_id",
     cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = ["dynamic_range_predicate", "block_timestamp::date"],
+    merge_exclude_columns = ["inserted_timestamp"],
     tags = ['gold','core']
 ) }}
 
