@@ -1,0 +1,72 @@
+version: 2
+
+models:
+  - name: core__fact_checkpoints
+    description: "Contains information about checkpoints in the Sui blockchain"
+    columns:
+      - name: checkpoint_number
+        description: "Unique identifier for the checkpoint within the blockchain."
+        data_type: integer
+
+      - name: block_timestamp
+        description: "Timestamp when the checkpoint was created."
+        data_type: timestamp
+
+      - name: epoch
+        description: "Epoch number in which the checkpoint was included."
+        data_type: integer
+
+      - name: checkpoint_digest
+        description: "The digest identified for the checkpoint"      
+        data_type: string
+
+      - name: previous_digest
+        description: "Digest of the previous checkpoint for chain continuity."
+        data_type: string
+
+      - name: network_total_transactions
+        description: "Cumulative total of transactions on the network up to this checkpoint."
+        data_type: bigint
+
+      - name: validator_signature
+        description: "Signature of the validator for this block."
+        data_type: string
+
+      - name: tx_count
+        description: "Total number of transactions included in this checkpoint."
+        data_type: bigint
+
+      - name: transactions_array
+        description: "The array of transactions included in this checkpoint."
+        data_type: variant
+
+      - name: FACT_CHECKPOINTS_ID
+        description: "Surrogate key for the checkpoint fact table, generated from the checkpoint number and block timestamp."
+        data_type: text
+
+      - name: INSERTED_TIMESTAMP
+        description: "Timestamp when the record was inserted into the database."
+        data_type: timestamp
+
+      - name: MODIFIED_TIMESTAMP
+        description: "Timestamp when the record was last modified."
+        data_type: timestamp
+      
+ 
+    config:
+      contract:
+        enforced: true
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          field: block_timestamp
+          interval: 12
+          severity: error
+          tags: ['test_recency']
+      - dbt_utils.sequential_values:
+          column_name: checkpoint_number
+          interval: 1
+          config:
+            severity: error
+            error_if: ">1"
+          tags: ['test_recency']
