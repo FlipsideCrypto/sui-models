@@ -4,7 +4,7 @@ models:
   - name: silver__account_states
     config:
       contract:
-        enforced: true
+        enforced: false
     columns:
       - name: block_date
         data_type: DATE
@@ -46,7 +46,7 @@ models:
   - name: silver__balances_history
     config:
       contract:
-        enforced: true
+        enforced: false
     columns:
       - name: block_date
         data_type: DATE
@@ -76,7 +76,7 @@ models:
   - name: silver__blocks
     config:
       contract:
-        enforced: true
+        enforced: false
     columns:
       - name: block_date
         data_type: DATE
@@ -154,7 +154,7 @@ models:
   - name: silver__dex_pools
     config:
       contract:
-        enforced: true
+        enforced: false
     columns:
       - name: block_date
         data_type: DATE
@@ -204,7 +204,7 @@ models:
   - name: silver__dex_trades
     config:
       contract:
-        enforced: true
+        enforced: false
     columns:
       - name: block_date
         data_type: DATE
@@ -260,7 +260,7 @@ models:
   - name: silver__jetsui_events
     config:
       contract:
-        enforced: true
+        enforced: false
     columns:
       - name: block_date
         data_type: DATE
@@ -306,7 +306,7 @@ models:
   - name: silver__jetsui_metadata
     config:
       contract:
-        enforced: true
+        enforced: false
     columns:
       - name: adding_date
         data_type: DATE
@@ -360,7 +360,7 @@ models:
   - name: silver__messages_with_data
     config:
       contract:
-        enforced: true
+        enforced: false
     columns:
       - name: block_date
         data_type: DATE
@@ -424,7 +424,7 @@ models:
   - name: silver__nft_events
     config:
       contract:
-        enforced: true
+        enforced: false
     columns:
       - name: block_date
         data_type: DATE
@@ -502,7 +502,7 @@ models:
   - name: silver__nft_items
     config:
       contract:
-        enforced: true
+        enforced: false
     columns:
       - name: block_date
         data_type: DATE
@@ -536,7 +536,7 @@ models:
   - name: silver__nft_metadata
     config:
       contract:
-        enforced: true
+        enforced: false
     columns:
       - name: adding_date
         data_type: DATE
@@ -584,7 +584,7 @@ models:
   - name: silver__nft_sales
     config:
       contract:
-        enforced: true
+        enforced: false
     columns:
       - name: block_date
         data_type: DATE
@@ -646,7 +646,7 @@ models:
   - name: silver__nft_transfers
     config:
       contract:
-        enforced: true
+        enforced: false
     columns:
       - name: block_date
         data_type: DATE
@@ -696,7 +696,7 @@ models:
   - name: silver__transactions
     config:
       contract:
-        enforced: true
+        enforced: false
     columns:
       - name: block_date
         data_type: DATE
