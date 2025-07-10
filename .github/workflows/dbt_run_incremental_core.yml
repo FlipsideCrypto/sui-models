@@ -5,8 +5,10 @@ on:
   workflow_dispatch:
     branches:
       - "main"
-  # schedule:
-  #   - cron: "35 3 * * *"
+  schedule:
+    # Run every hour at 15 minutes past the hour
+    - cron: "15 * * * *" 
+      
     
 env:
   DBT_PROFILES_DIR: "${{ vars.DBT_PROFILES_DIR }}"

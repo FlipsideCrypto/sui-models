@@ -11,7 +11,7 @@ FROM
         'number_sequence'
     ) }}
 WHERE
-    _id >= 96605300
+    _id >= 96605300 -- first block of 2025
     AND _id <= (
         SELECT
             MAX(checkpoint_number)
