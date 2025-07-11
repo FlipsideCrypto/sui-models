@@ -8,7 +8,7 @@
         "producer_batch_size" :"25000",
         "worker_batch_size" :"25000",
         "sql_source" :"{{this.identifier}}",
-        "order_by_column": "checkpoint_number" }
+        "order_by_column": "checkpoint_number DESC" }
     ),
     tags = ['streamline_realtime']
 ) }}

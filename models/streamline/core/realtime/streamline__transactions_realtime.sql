@@ -9,7 +9,7 @@
         "worker_batch_size" :"7500",
         "sql_source" :"{{this.identifier}}",
         'exploded_key': '["result"]',
-        "order_by_column": "checkpoint_number" }
+        "order_by_column": "checkpoint_number DESC" }
     ),
     tags = ['streamline_realtime']
 ) }}
