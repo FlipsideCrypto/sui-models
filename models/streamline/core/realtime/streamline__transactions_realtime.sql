@@ -4,9 +4,9 @@
         func = 'streamline.udf_bulk_rest_api_v2',
         target = "{{this.schema}}.{{this.identifier}}",
         params ={ "external_table" :"transactions",
-        "sql_limit" :"15000",
-        "producer_batch_size" :"15000",
-        "worker_batch_size" :"7500",
+        "sql_limit" :"18000",
+        "producer_batch_size" :"18000",
+        "worker_batch_size" :"9000",
         "sql_source" :"{{this.identifier}}",
         'exploded_key': '["result"]',
         "order_by_column": "checkpoint_number DESC" }
