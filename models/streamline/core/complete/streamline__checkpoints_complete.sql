@@ -5,7 +5,12 @@
     unique_key = ['checkpoint_number'],
     merge_exclude_columns = ["inserted_timestamp"],
     cluster_by = "ROUND(checkpoint_number, -5)",
-    tags = ['streamline_realtime']
+    tags = ['streamline_realtime'],
+    post_hook = enable_search_optimization(
+        '{{this.schema}}',
+        '{{this.identifier}}',
+        'ON EQUALITY(checkpoint_number)'
+    ),
 ) }}
 
 SELECT
