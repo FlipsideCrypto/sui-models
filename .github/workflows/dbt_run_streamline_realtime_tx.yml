@@ -1,12 +1,12 @@
-name: dbt_run_streamline_realtime
-run-name: dbt_run_streamline_realtime
+name: dbt_run_streamline_realtime_tx
+run-name: dbt_run_streamline_realtime_tx
 
 on:
   workflow_dispatch:
     branches:
       - "main"
   schedule:
-    - cron: '17 /2 * * *' # Run every 2 hours at 17 minutes past the hour
+    - cron: '*/15 * * * *' # Run every 15 minutes
     
 env:
   DBT_PROFILES_DIR: "${{ vars.DBT_PROFILES_DIR }}"
@@ -43,4 +43,4 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt run -m 2+models/streamline/core/realtime/streamline__checkpoints_realtime.sql --vars '{STREAMLINE_INVOKE_STREAMS: True}'
+          dbt run -m 2+models/streamline/core/realtime/streamline__transactions_realtime.sql --vars '{STREAMLINE_INVOKE_STREAMS: True}'
