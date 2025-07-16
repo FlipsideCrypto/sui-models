@@ -12,8 +12,7 @@ SELECT
     NAME,
     description,
     icon_url,
-    id,
-    {{ dbt_utils.generate_surrogate_key(['coin_type']) }} AS coin_types_id,
+    object_id,
     {{ dbt_utils.generate_surrogate_key(['coin_type']) }} AS dim_tokens_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp

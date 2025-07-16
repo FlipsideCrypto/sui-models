@@ -27,9 +27,9 @@ WITH base AS (
         change_value :"digest" :: STRING AS digest,
         change_value :"objectId" :: STRING AS object_id,
         change_value :"objectType" :: STRING AS object_type,
-        change_value :"version" :BIGINT AS version,
-        change_value :"previousVersion" :BIGINT AS previous_version,
-        change_value :"owner" :"ObjectOwner" :: STRING AS object_owner,
+        change_value :"version" :: BIGINT AS version,
+        change_value :"previousVersion" :: BIGINT AS previous_version,
+        change_value :"owner" :"AddressOwner" :: STRING AS object_owner
     FROM
         {{ ref('silver__transactions') }} A,
         LATERAL FLATTEN(

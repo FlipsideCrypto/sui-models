@@ -64,7 +64,7 @@ SELECT
     DATA :iconUrl :: STRING AS icon_url,
     DATA :name :: STRING AS NAME,
     DATA :symbol :: STRING AS symbol,
-    DATA :id :: STRING AS id,
+    DATA :id :: STRING AS object_id,
     {{ dbt_utils.generate_surrogate_key(['coin_type']) }} AS coin_metadata_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
