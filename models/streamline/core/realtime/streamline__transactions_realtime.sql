@@ -6,8 +6,8 @@
         params ={ "external_table" :"transactions",
         "sql_limit" :"90000",
         "producer_batch_size" :"90000",
-        "worker_batch_size" :"2500",
-        "async_concurrent_requests" :"5",
+        "worker_batch_size" :"3000",
+        "async_concurrent_requests" :"10",
         "sql_source" :"{{this.identifier}}",
         'exploded_key': '["result"]',
         "order_by_column": "checkpoint_number DESC" }
