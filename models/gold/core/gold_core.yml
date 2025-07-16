@@ -196,10 +196,10 @@ models:
         data_type: VARCHAR
       - name: VERSION
         description: "{{ doc('version') }}"
-        data_type: VARIANT
+        data_type: BIGINT
       - name: PREVIOUS_VERSION
         description: "{{ doc('previous_version') }}"
-        data_type: VARIANT
+        data_type: BIGINT
       - name: OBJECT_OWNER
         description: "{{ doc('object_owner') }}"
         data_type: VARCHAR
