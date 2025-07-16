@@ -48,7 +48,7 @@ tx_grouped AS (
         checkpoint_number,
         block_timestamp,
         FLOOR(
-            tx_index / 50
+            tx_index / 10
         ) grp,
         ARRAY_AGG(
             tx_digest
