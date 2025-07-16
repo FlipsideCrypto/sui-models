@@ -1,61 +1,294 @@
 version: 2
 
 models:
-  - name: core__fact_checkpoints
-    description: "Contains information about checkpoints in the Sui blockchain"
-    columns:
-      - name: checkpoint_number
-        description: "Unique identifier for the checkpoint within the blockchain."
-        data_type: integer
-
-      - name: block_timestamp
-        description: "Timestamp when the checkpoint was created."
-        data_type: timestamp
-
-      - name: epoch
-        description: "Epoch number in which the checkpoint was included."
-        data_type: integer
-
-      - name: checkpoint_digest
-        description: "The digest identified for the checkpoint"      
-        data_type: string
-
-      - name: previous_digest
-        description: "Digest of the previous checkpoint for chain continuity."
-        data_type: string
-
-      - name: network_total_transactions
-        description: "Cumulative total of transactions on the network up to this checkpoint."
-        data_type: bigint
-
-      - name: validator_signature
-        description: "Signature of the validator for this block."
-        data_type: string
-
-      - name: tx_count
-        description: "Total number of transactions included in this checkpoint."
-        data_type: bigint
-
-      - name: transactions_array
-        description: "The array of transactions included in this checkpoint."
-        data_type: variant
-
-      - name: FACT_CHECKPOINTS_ID
-        description: "Surrogate key for the checkpoint fact table, generated from the checkpoint number and block timestamp."
-        data_type: text
-
-      - name: INSERTED_TIMESTAMP
-        description: "Timestamp when the record was inserted into the database."
-        data_type: timestamp
-
-      - name: MODIFIED_TIMESTAMP
-        description: "Timestamp when the record was last modified."
-        data_type: timestamp
-      
- 
+  - name: core__dim_tokens
+    description: "{{ doc('core__dim_tokens') }}"
     config:
       contract:
         enforced: true
+    columns:
+      - name: COIN_TYPE
+        description: "{{ doc('coin_type') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+          - unique
+      - name: DECIMALS
+        description: "{{ doc('decimals') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: SYMBOL
+        description: "{{ doc('symbol') }}"
+        data_type: VARCHAR
+      - name: NAME
+        description: "{{ doc('name') }}"
+        data_type: VARCHAR
+      - name: DESCRIPTION
+        description: "{{ doc('description') }}"
+        data_type: VARCHAR
+      - name: ICON_URL
+        description: "{{ doc('icon_url') }}"
+        data_type: VARCHAR
+      - name: ID
+        description: "{{ doc('id') }}"
+        data_type: VARCHAR
+      - name: COIN_TYPES_ID
+        description: "{{ doc('coin_types_id') }}"
+        data_type: VARCHAR
+      - name: DIM_TOKENS_ID
+        description: "{{ doc('dim_tokens_id') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+          - unique
+      - name: INSERTED_TIMESTAMP
+        description: "{{ doc('inserted_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: MODIFIED_TIMESTAMP
+        description: "{{ doc('modified_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          field: modified_timestamp
+          interval: 48
+          severity: warn
+          tags: ['test_recency']
+
+  - name: core__fact_balance_changes
+    description: "{{ doc('core__fact_balance_changes') }}"
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: CHECKPOINT_NUMBER
+        description: "{{ doc('checkpoint_number') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: TX_DIGEST
+        description: "{{ doc('tx_digest') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: TX_KIND
+        description: "{{ doc('tx_kind') }}"
+        data_type: VARCHAR
+      - name: TX_SENDER
+        description: "{{ doc('tx_sender') }}"
+        data_type: VARCHAR
+      - name: MESSAGE_VERSION
+        description: "{{ doc('message_version') }}"
+        data_type: VARCHAR
+      - name: TX_SUCCEEDED
+        description: "{{ doc('tx_succeeded') }}"
+        data_type: BOOLEAN
+        tests:
+          - not_null
+      - name: BALANCE_CHANGE_INDEX
+        description: "{{ doc('balance_change_index') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: COIN_TYPE
+        description: "{{ doc('coin_type') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: AMOUNT
+        description: "{{ doc('amount') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: OWNER
+        description: "{{ doc('owner') }}"
+        data_type: VARCHAR
+      - name: FACT_TRANSACTION_BALANCE_CHANGES_ID
+        description: "{{ doc('fact_transaction_balance_changes_id') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+          - unique
+      - name: INSERTED_TIMESTAMP
+        description: "{{ doc('inserted_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: MODIFIED_TIMESTAMP
+        description: "{{ doc('modified_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          field: block_timestamp
+          interval: 12
+          severity: error
+          tags: ['test_recency']
+
+  - name: core__fact_changes
+    description: "{{ doc('core__fact_changes') }}"
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: CHECKPOINT_NUMBER
+        description: "{{ doc('checkpoint_number') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: TX_DIGEST
+        description: "{{ doc('tx_digest') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: TX_KIND
+        description: "{{ doc('tx_kind') }}"
+        data_type: VARCHAR
+      - name: TX_SENDER
+        description: "{{ doc('tx_sender') }}"
+        data_type: VARCHAR
+      - name: MESSAGE_VERSION
+        description: "{{ doc('message_version') }}"
+        data_type: VARCHAR
+      - name: TX_SUCCEEDED
+        description: "{{ doc('tx_succeeded') }}"
+        data_type: BOOLEAN
+        tests:
+          - not_null
+      - name: CHANGE_INDEX
+        description: "{{ doc('change_index') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: TYPE
+        description: "{{ doc('type') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: SENDER
+        description: "{{ doc('sender') }}"
+        data_type: VARCHAR
+      - name: DIGEST
+        description: "{{ doc('digest') }}"
+        data_type: VARCHAR
+      - name: OBJECT_ID
+        description: "{{ doc('object_id') }}"
+        data_type: VARCHAR
+      - name: OBJECT_TYPE
+        description: "{{ doc('object_type') }}"
+        data_type: VARCHAR
+      - name: VERSION
+        description: "{{ doc('version') }}"
+        data_type: VARIANT
+      - name: PREVIOUS_VERSION
+        description: "{{ doc('previous_version') }}"
+        data_type: VARIANT
+      - name: OBJECT_OWNER
+        description: "{{ doc('object_owner') }}"
+        data_type: VARCHAR
+      - name: FACT_CHANGES_ID
+        description: "{{ doc('fact_changes_id') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+          - unique
+      - name: INSERTED_TIMESTAMP
+        description: "{{ doc('inserted_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: MODIFIED_TIMESTAMP
+        description: "{{ doc('modified_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          field: block_timestamp
+          interval: 12
+          severity: error
+          tags: ['test_recency']
+
+  - name: core__fact_checkpoints
+    description: "{{ doc('core__fact_checkpoints') }}"
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: CHECKPOINT_NUMBER
+        description: "{{ doc('checkpoint_number') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+          - unique
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: EPOCH
+        description: "{{ doc('epoch') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: CHECKPOINT_DIGEST
+        description: "{{ doc('checkpoint_digest') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: PREVIOUS_DIGEST
+        description: "{{ doc('previous_digest') }}"
+        data_type: VARCHAR
+      - name: NETWORK_TOTAL_TRANSACTIONS
+        description: "{{ doc('network_total_transactions') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: VALIDATOR_SIGNATURE
+        description: "{{ doc('validator_signature') }}"
+        data_type: VARCHAR
+      - name: TX_COUNT
+        description: "{{ doc('tx_count') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: TRANSACTIONS_ARRAY
+        description: "{{ doc('transactions_array') }}"
+        data_type: VARIANT
+      - name: FACT_CHECKPOINTS_ID
+        description: "{{ doc('fact_checkpoints_id') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+          - unique
+      - name: INSERTED_TIMESTAMP
+        description: "{{ doc('inserted_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: MODIFIED_TIMESTAMP
+        description: "{{ doc('modified_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
     tests:
       - dbt_utils.recency:
           datepart: hour
@@ -69,4 +302,349 @@ models:
           config:
             severity: error
             error_if: ">1"
+          tags: ['test_recency']
+
+  - name: core__fact_events
+    description: "{{ doc('core__fact_events') }}"
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: CHECKPOINT_NUMBER
+        description: "{{ doc('checkpoint_number') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: TX_DIGEST
+        description: "{{ doc('tx_digest') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: TX_KIND
+        description: "{{ doc('tx_kind') }}"
+        data_type: VARCHAR
+      - name: TX_SENDER
+        description: "{{ doc('tx_sender') }}"
+        data_type: VARCHAR
+      - name: MESSAGE_VERSION
+        description: "{{ doc('message_version') }}"
+        data_type: VARCHAR
+      - name: TX_SUCCEEDED
+        description: "{{ doc('tx_succeeded') }}"
+        data_type: BOOLEAN
+        tests:
+          - not_null
+      - name: EVENT_INDEX
+        description: "{{ doc('event_index') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: TYPE
+        description: "{{ doc('type') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: EVENT_ADDRESS
+        description: "{{ doc('event_address') }}"
+        data_type: VARCHAR
+      - name: EVENT_MODULE
+        description: "{{ doc('event_module') }}"
+        data_type: VARCHAR
+      - name: EVENT_RESOURCE
+        description: "{{ doc('event_resource') }}"
+        data_type: VARCHAR
+      - name: PACKAGE_ID
+        description: "{{ doc('package_id') }}"
+        data_type: VARCHAR
+      - name: TRANSACTION_MODULE
+        description: "{{ doc('transaction_module') }}"
+        data_type: VARCHAR
+      - name: SENDER
+        description: "{{ doc('sender') }}"
+        data_type: VARCHAR
+      - name: PARSED_JSON
+        description: "{{ doc('parsed_json') }}"
+        data_type: VARIANT
+      - name: FACT_EVENTS_ID
+        description: "{{ doc('fact_events_id') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+          - unique
+      - name: INSERTED_TIMESTAMP
+        description: "{{ doc('inserted_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: MODIFIED_TIMESTAMP
+        description: "{{ doc('modified_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          field: block_timestamp
+          interval: 12
+          severity: error
+          tags: ['test_recency']
+
+  - name: core__fact_transaction_blocks
+    description: "{{ doc('core__fact_transaction_blocks') }}"
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: CHECKPOINT_NUMBER
+        description: "{{ doc('checkpoint_number') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: TX_DIGEST
+        description: "{{ doc('tx_digest') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+          - unique
+      - name: TX_KIND
+        description: "{{ doc('tx_kind') }}"
+        data_type: VARCHAR
+      - name: TX_SENDER
+        description: "{{ doc('tx_sender') }}"
+        data_type: VARCHAR
+      - name: MESSAGE_VERSION
+        description: "{{ doc('message_version') }}"
+        data_type: VARCHAR
+      - name: TX_FEE
+        description: "{{ doc('tx_fee') }}"
+        data_type: FLOAT
+      - name: TX_SUCCEEDED
+        description: "{{ doc('tx_succeeded') }}"
+        data_type: BOOLEAN
+        tests:
+          - not_null
+      - name: TX_ERROR
+        description: "{{ doc('tx_error') }}"
+        data_type: VARCHAR
+      - name: TX_DEPENDENCIES
+        description: "{{ doc('tx_dependencies') }}"
+        data_type: VARIANT
+      - name: GAS_USED_COMPUTATION_COST
+        description: "{{ doc('gas_used_computation_cost') }}"
+        data_type: NUMBER
+      - name: GAS_USED_NON_REFUNDABLE_STORAGE_FEE
+        description: "{{ doc('gas_used_non_refundable_storage_fee') }}"
+        data_type: NUMBER
+      - name: GAS_USED_STORAGE_COST
+        description: "{{ doc('gas_used_storage_cost') }}"
+        data_type: NUMBER
+      - name: GAS_USED_STORAGE_REBATE
+        description: "{{ doc('gas_used_storage_rebate') }}"
+        data_type: NUMBER
+      - name: GAS_PRICE
+        description: "{{ doc('gas_price') }}"
+        data_type: NUMBER
+      - name: GAS_BUDGET
+        description: "{{ doc('gas_budget') }}"
+        data_type: NUMBER
+      - name: GAS_OWNER
+        description: "{{ doc('gas_owner') }}"
+        data_type: VARCHAR
+      - name: FACT_TRANSACTION_BLOCKS_ID
+        description: "{{ doc('fact_transaction_blocks_id') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+          - unique
+      - name: INSERTED_TIMESTAMP
+        description: "{{ doc('inserted_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: MODIFIED_TIMESTAMP
+        description: "{{ doc('modified_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          field: block_timestamp
+          interval: 12
+          severity: error
+          tags: ['test_recency']
+
+  - name: core__fact_transaction_inputs
+    description: "{{ doc('core__fact_transaction_inputs') }}"
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: CHECKPOINT_NUMBER
+        description: "{{ doc('checkpoint_number') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: TX_DIGEST
+        description: "{{ doc('tx_digest') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: TX_KIND
+        description: "{{ doc('tx_kind') }}"
+        data_type: VARCHAR
+      - name: TX_SENDER
+        description: "{{ doc('tx_sender') }}"
+        data_type: VARCHAR
+      - name: MESSAGE_VERSION
+        description: "{{ doc('message_version') }}"
+        data_type: VARCHAR
+      - name: TX_SUCCEEDED
+        description: "{{ doc('tx_succeeded') }}"
+        data_type: BOOLEAN
+        tests:
+          - not_null
+      - name: INPUT_INDEX
+        description: "{{ doc('input_index') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: TYPE
+        description: "{{ doc('type') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: VERSION
+        description: "{{ doc('version') }}"
+        data_type: NUMBER
+      - name: OBJECT_ID
+        description: "{{ doc('object_id') }}"
+        data_type: VARCHAR
+      - name: OBJECT_TYPE
+        description: "{{ doc('object_type') }}"
+        data_type: VARCHAR
+      - name: DIGEST
+        description: "{{ doc('digest') }}"
+        data_type: VARCHAR
+      - name: VALUE
+        description: "{{ doc('value') }}"
+        data_type: VARCHAR
+      - name: VALUE_TYPE
+        description: "{{ doc('value_type') }}"
+        data_type: VARCHAR
+      - name: INITIAL_SHARED_VERSION
+        description: "{{ doc('initial_shared_version') }}"
+        data_type: VARCHAR
+      - name: MUTABLE
+        description: "{{ doc('mutable') }}"
+        data_type: BOOLEAN
+      - name: FACT_TRANSACTION_INPUTS_ID
+        description: "{{ doc('fact_transaction_inputs_id') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+          - unique
+      - name: INSERTED_TIMESTAMP
+        description: "{{ doc('inserted_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: MODIFIED_TIMESTAMP
+        description: "{{ doc('modified_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          field: block_timestamp
+          interval: 12
+          severity: error
+          tags: ['test_recency']
+
+  - name: core__fact_transactions
+    description: "{{ doc('core__fact_transactions') }}"
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: CHECKPOINT_NUMBER
+        description: "{{ doc('checkpoint_number') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: TX_DIGEST
+        description: "{{ doc('tx_digest') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: TX_KIND
+        description: "{{ doc('tx_kind') }}"
+        data_type: VARCHAR
+      - name: TX_SENDER
+        description: "{{ doc('tx_sender') }}"
+        data_type: VARCHAR
+      - name: MESSAGE_VERSION
+        description: "{{ doc('message_version') }}"
+        data_type: VARCHAR
+      - name: TX_SUCCEEDED
+        description: "{{ doc('tx_succeeded') }}"
+        data_type: BOOLEAN
+        tests:
+          - not_null
+      - name: PAYLOAD_INDEX
+        description: "{{ doc('payload_index') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: PAYLOAD_TYPE
+        description: "{{ doc('payload_type') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: PAYLOAD_DETAILS
+        description: "{{ doc('payload_details') }}"
+        data_type: VARIANT
+      - name: FACT_TRANSACTIONS_ID
+        description: "{{ doc('fact_transactions_id') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+          - unique
+      - name: INSERTED_TIMESTAMP
+        description: "{{ doc('inserted_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: MODIFIED_TIMESTAMP
+        description: "{{ doc('modified_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          field: block_timestamp
+          interval: 12
+          severity: error
           tags: ['test_recency']
