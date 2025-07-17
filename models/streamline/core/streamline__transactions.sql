@@ -4,7 +4,12 @@
     incremental_predicates = ["dynamic_range_predicate", "block_timestamp::date"],
     merge_exclude_columns = ["inserted_timestamp"],
     cluster_by = "block_timestamp::DATE",
-    tags = ['streamline_realtime']
+    tags = ['streamline_realtime'],
+    post_hook = enable_search_optimization(
+        '{{this.schema}}',
+        '{{this.identifier}}',
+        'ON EQUALITY(tx_digest)'
+    )
 ) }}
 
 SELECT
