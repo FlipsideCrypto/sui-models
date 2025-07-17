@@ -1,5 +1,5 @@
 {% docs checkpoint_number %}
-The sequential number of the checkpoint in which this record was finalized on the Sui blockchain. Checkpoints are consensus milestones that bundle and finalize multiple transactions, providing the primary unit of finality and recovery in Sui. Starts at 0 (genesis checkpoint) and increments by one for each new checkpoint. Used for time series analysis, transaction ordering, and measuring network throughput. Once a transaction is included in a checkpoint, it is permanently recorded and cannot be reverted. Example: 123456.
+The sequential number of the checkpoint in which this record was finalized on the Sui blockchain. Checkpoints are consensus milestones that bundle and finalize multiple transactions, providing the primary unit of finality and recovery in Sui. Starts at 0 (genesis checkpoint) and increments by one for each new checkpoint. Used for time series analysis, transaction ordering, and measuring network throughput. Once a transaction is included in a checkpoint, it is permanently recorded and cannot be reverted. This dataset only includes checkpoints greater than or equal to 96605300. Example: 96605301.
 {% enddocs %}
 
 {% docs block_timestamp %}
