@@ -5,7 +5,7 @@
         target = "{{this.schema}}.{{this.identifier}}",
         params ={ "external_table" :"transactions",
         "sql_limit" :"500000",
-        "producer_batch_size" :"500000",
+        "producer_batch_size" :"250000",
         "worker_batch_size" :"5000",
         "async_concurrent_requests" :"50",
         "sql_source" :"{{this.identifier}}",
