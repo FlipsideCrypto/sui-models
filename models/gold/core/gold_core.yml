@@ -30,11 +30,8 @@ models:
       - name: ICON_URL
         description: "{{ doc('icon_url') }}"
         data_type: VARCHAR
-      - name: ID
+      - name: OBJECT_ID
         description: "{{ doc('id') }}"
-        data_type: VARCHAR
-      - name: COIN_TYPES_ID
-        description: "{{ doc('coin_types_id') }}"
         data_type: VARCHAR
       - name: DIM_TOKENS_ID
         description: "{{ doc('dim_tokens_id') }}"
@@ -439,13 +436,13 @@ models:
       - name: TX_DEPENDENCIES
         description: "{{ doc('tx_dependencies') }}"
         data_type: VARIANT
-      - name: GAS_USED_COMPUTATION_COST
+      - name: GAS_USED_COMPUTATION_FEE
         description: "{{ doc('gas_used_computation_cost') }}"
         data_type: NUMBER
       - name: GAS_USED_NON_REFUNDABLE_STORAGE_FEE
         description: "{{ doc('gas_used_non_refundable_storage_fee') }}"
         data_type: NUMBER
-      - name: GAS_USED_STORAGE_COST
+      - name: GAS_USED_STORAGE_FEE
         description: "{{ doc('gas_used_storage_cost') }}"
         data_type: NUMBER
       - name: GAS_USED_STORAGE_REBATE
