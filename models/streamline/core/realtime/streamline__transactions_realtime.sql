@@ -4,10 +4,10 @@
         func = 'streamline.udf_bulk_rest_api_v2',
         target = "{{this.schema}}.{{this.identifier}}",
         params ={ "external_table" :"transactions",
-        "sql_limit" :"90000",
-        "producer_batch_size" :"90000",
-        "worker_batch_size" :"3000",
-        "async_concurrent_requests" :"10",
+        "sql_limit" :"2000000",
+        "producer_batch_size" :"500000",
+        "worker_batch_size" :"5000",
+        "async_concurrent_requests" :"25",
         "sql_source" :"{{this.identifier}}",
         'exploded_key': '["result"]',
         "order_by_column": "checkpoint_number DESC" }
@@ -42,7 +42,7 @@ txs AS (
     FROM
         last_3_days
 ) #}
-),
+) {# ,
 tx_grouped AS (
     SELECT
         checkpoint_number,
@@ -60,10 +60,10 @@ tx_grouped AS (
         checkpoint_number,
         block_timestamp,
         grp
-)
+) #}
 SELECT
     checkpoint_number,
-    tx_count_in_request,
+    1 AS tx_count_in_request,
     to_char(
         block_timestamp,
         'YYYY_MM_DD_HH_MI_SS_FF3'
@@ -85,10 +85,10 @@ SELECT
             'id',
             checkpoint_number,
             'method',
-            'sui_multiGetTransactionBlocks',
+            'sui_getTransactionBlock',
             'params',
             ARRAY_CONSTRUCT(
-                tx_param,
+                tx_digest,
                 OBJECT_CONSTRUCT(
                     'showInput',
                     TRUE,
@@ -110,4 +110,4 @@ SELECT
         'Vault/prod/sui/quicknode/mainnet'
     ) AS request
 FROM
-    tx_grouped
+    txs
