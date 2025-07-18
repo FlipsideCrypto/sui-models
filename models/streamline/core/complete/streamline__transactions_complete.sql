@@ -35,6 +35,7 @@ FROM
 {% endif %}
 WHERE
     DATA :error IS NULL
+    AND block_timestamp IS NOT NULL
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
