@@ -111,3 +111,7 @@ SELECT
     ) AS request
 FROM
     txs
+ORDER BY
+    block_timestamp DESC
+LIMIT
+    600000
