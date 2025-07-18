@@ -7,7 +7,7 @@
         "sql_limit" :"600000",
         "producer_batch_size" :"600000",
         "worker_batch_size" :"6000",
-        "async_concurrent_requests" :"25",
+        "async_concurrent_requests" :"5",
         "sql_source" :"{{this.identifier}}",
         'exploded_key': '["result"]',
         "order_by_column": "checkpoint_number DESC" }
