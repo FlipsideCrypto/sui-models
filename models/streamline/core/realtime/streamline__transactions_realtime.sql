@@ -111,3 +111,7 @@ SELECT
     ) AS request
 FROM
     tx_grouped
+ORDER BY
+    block_timestamp DESC
+LIMIT
+    80000
