@@ -114,4 +114,4 @@ FROM
 ORDER BY
     block_timestamp DESC
 LIMIT
-    80000
+    400000
