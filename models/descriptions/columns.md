@@ -273,3 +273,7 @@ Web URL pointing to the token's icon image. Used for visual representation in wa
 {% docs id %}
 Unique identifier for the token metadata record, linking metadata to on-chain token types. Used for metadata management, registry operations, and analytics joins. Example: 'tokenmeta_123'.
 {% enddocs %}
+
+{% docs token_is_verified %}
+Boolean flag indicating whether the token or price record is verified by Flipside's crosschain curation process. Verified tokens are prioritized for analytics and are considered reliable for most use cases. Unverified tokens may be incomplete, deprecated, or experimental.
+{% enddocs %} 
