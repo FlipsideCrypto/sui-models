@@ -86,7 +86,7 @@ Sui's consensus is based on DPoS and separates transaction dissemination from or
 
 ### Contract and Event Analysis
 
-* **Call tracing**: Use `package_id`, `module`, `function_name` to group activity.
+* **Call tracing**: Use `package_id`, `event_module`, `event_resource` to group activity.
 * **Event logs**: Primary source for high-granularity behavior (e.g., trades, mints).
 * **Transaction context**: Combine events from a single transaction for full execution picture.
 * **Error monitoring**: Track abort codes to identify bugs or misuse.
