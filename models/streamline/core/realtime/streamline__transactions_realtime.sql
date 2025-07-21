@@ -4,7 +4,7 @@
         func = 'streamline.udf_bulk_rest_api_v2',
         target = "{{this.schema}}.{{this.identifier}}",
         params ={ "external_table" :"transactions",
-        "sql_limit" :"120000",
+        "sql_limit" :"1200000",
         "producer_batch_size" :"100000",
         "worker_batch_size" :"2000",
         "async_concurrent_requests" :"10",
