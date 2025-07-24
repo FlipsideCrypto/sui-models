@@ -94,6 +94,18 @@ Type/category of object state modification or event. Enum: created, modified, de
 Sui address (32-byte hex) representing the transaction or event sender. Used for authorization, security analysis, and user activity tracking. Example: '0xabc123...'.
 {% enddocs %}
 
+{% docs receiver %}
+Sui address (32-byte hex) representing the transaction or event receiver. Used for tracking destination addresses, transfer flows, and recipient analytics. In transfer contexts, this is the address receiving tokens or assets. Example: '0xdef456...'.
+{% enddocs %}
+
+{% docs ez_transfers_id %}
+Surrogate key for the enhanced transfers table. Generated unique identifier by combining transaction digest and balance change index, ensuring each transfer event enriched with token metadata is uniquely addressable. Used as the primary key for user-friendly transfer analytics, dashboard queries, and cross-model joins. In Sui, this supports transfer analysis with normalized amounts and token symbols, enabling easy identification and comparison of token movements.
+{% enddocs %}
+
+{% docs fact_transfers_id %}
+Surrogate key for the core fact transfers table. Generated unique identifier by combining transaction digest and balance change index, ensuring each transfer event is uniquely addressable. Used as the primary key for transfer tracking, analytics workflows, and cross-model joins. In Sui, this supports precise transfer analysis, portfolio tracking, and compliance reporting by enabling unique identification of each token movement between addresses.
+{% enddocs %}
+
 {% docs digest %}
 32-byte cryptographic hash (hex) of object contents, using SHA-256. Used for content verification, integrity checking, and unauthorized modification detection. Example: 'a1b2c3...'.
 {% enddocs %}
@@ -272,4 +284,8 @@ Web URL pointing to the token's icon image. Used for visual representation in wa
 
 {% docs id %}
 Unique identifier for the token metadata record, linking metadata to on-chain token types. Used for metadata management, registry operations, and analytics joins. Example: 'tokenmeta_123'.
+{% enddocs %}
+
+{% docs amount_normalized %}
+Decimal-adjusted token amount calculated by dividing the raw amount by 10^decimals. Provides human-readable token quantities that can be directly compared across different token types. Essential for financial analysis, balance calculations, and user-facing applications where raw blockchain amounts need to be converted to meaningful values. Example: if amount is 1000000000 and decimals is 9, amount_normalized would be 1.0.
 {% enddocs %}

@@ -14,63 +14,50 @@ allowed_tx AS (
         tx_digest
     FROM 
         {{ ref('core__fact_transactions') }}
-    {% if is_incremental() %}
-    WHERE 
-        modified_timestamp >= (SELECT COALESCE(MAX(modified_timestamp),'1970-01-01') FROM {{ this }})
-    {% endif %}
-    GROUP BY 
-        tx_digest
-    HAVING SUM(
-        CASE
-            WHEN payload_type IN ('TransferObjects','SplitCoins','MergeCoins') THEN 0
-            WHEN payload_type = 'MoveCall' AND payload_details :package
-                = '0x0000000000000000000000000000000000000000000000000000000000000002'
-            THEN 0
-            ELSE 1
-        END
-    ) = 0
-),
-
-coin_only_tx AS (
-    SELECT
-        tx_digest
-    FROM 
-        {{ ref('core__fact_changes') }}
-    WHERE 
-        tx_digest IN (SELECT tx_digest FROM allowed_tx)
+    WHERE
+        (payload_type IN ('TransferObjects','SplitCoins','MergeCoins'))
+        OR 
+        (payload_type = 'MoveCall' AND payload_details :package = '0x0000000000000000000000000000000000000000000000000000000000000002')
     {% if is_incremental() %}
         AND modified_timestamp >= (SELECT COALESCE(MAX(modified_timestamp),'1970-01-01') FROM {{ this }})
     {% endif %}
-    GROUP BY 
-        tx_digest
-    HAVING MAX(
-        CASE WHEN object_type ILIKE '0x2::coin::Coin%' THEN 0 ELSE 1 END
-    ) = 0
+),
+filtered as (
+    SELECT 
+        fbc.checkpoint_number,
+        fbc.block_timestamp,
+        fbc.tx_digest,
+        fbc.tx_succeeded,
+        fbc.tx_sender as sender,
+        fbc.owner as receiver,
+        fbc.balance_change_index,
+        fbc.coin_type,
+        fbc.amount
+    FROM 
+        {{ ref('core__fact_balance_changes') }} fbc
+    JOIN
+        allowed_tx at 
+        ON fbc.tx_digest = at.tx_digest
+    WHERE 
+        fbc.tx_sender != fbc.owner
+        AND NOT (balance_change_index = 0 AND amount < 0) -- remove mints, self-splits, proofs, flash loans
+    {% if is_incremental() %}
+        AND fbc.modified_timestamp >= (SELECT COALESCE(MAX(modified_timestamp),'1970-01-01') FROM {{ this }})
+    {% endif %}
 )
-SELECT 
-    fbc.checkpoint_number,
-    fbc.block_timestamp,
-    fbc.tx_digest,
-    fbc.tx_succeeded,
-    fbc.tx_sender as sender,
-    fbc.owner as receiver,
-    fbc.balance_change_index,
-    dt.symbol,
-    dt.decimals,
-    fbc.amount as amount_raw,
-    fbc.amount / POWER(10, dt.decimals) as amount_normalized,
+SELECT DISTINCT
+    checkpoint_number,
+    block_timestamp,
+    tx_digest,
+    tx_succeeded,
+    sender,
+    receiver,
+    balance_change_index,
+    coin_type,
+    amount,
     {{ dbt_utils.generate_surrogate_key(['tx_digest','balance_change_index']) }} AS transfers_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
-FROM 
-    {{ ref('core__fact_balance_changes') }} fbc
-JOIN 
-    {{ ref('core__dim_tokens') }} dt ON fbc.coin_type = dt.coin_type
-WHERE 
-    fbc.tx_digest IN (SELECT tx_digest FROM coin_only_tx)
-    AND fbc.tx_sender != fbc.owner
-    {% if is_incremental() %}
-        AND fbc.modified_timestamp >= (SELECT COALESCE(MAX(modified_timestamp),'1970-01-01') FROM {{ this }})
-        AND dt.modified_timestamp >= (SELECT COALESCE(MAX(modified_timestamp),'1970-01-01') FROM {{ this }})
-    {% endif %}
+FROM
+    filtered
