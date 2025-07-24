@@ -200,6 +200,12 @@ models:
       - name: OBJECT_OWNER
         description: "{{ doc('object_owner') }}"
         data_type: VARCHAR
+      - name: PACKAGE_ID
+        # description: "{{ doc('object_owner') }}"
+        data_type: VARCHAR
+      - name: MODULES
+        # description: "{{ doc('object_owner') }}"
+        data_type: VARCHAR
       - name: FACT_CHANGES_ID
         description: "{{ doc('fact_changes_id') }}"
         data_type: VARCHAR

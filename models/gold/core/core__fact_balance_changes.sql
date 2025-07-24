@@ -24,7 +24,10 @@ WITH base AS (
         b.value AS bc_value,
         bc_value :"amount" :: bigint AS amount,
         bc_value :"coinType" :: STRING AS coin_type,
-        bc_value :"owner" :"AddressOwner" :: STRING AS owner
+        COALESCE(
+            bc_value :"owner" :"AddressOwner",
+            bc_value :"owner" :"ObjectOwner" :: STRING
+        ) AS owner
     FROM
         {{ ref('silver__transactions') }} A,
         LATERAL FLATTEN(

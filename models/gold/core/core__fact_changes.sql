@@ -27,9 +27,11 @@ WITH base AS (
         change_value :"digest" :: STRING AS digest,
         change_value :"objectId" :: STRING AS object_id,
         change_value :"objectType" :: STRING AS object_type,
-        change_value :"version" :: BIGINT AS version,
-        change_value :"previousVersion" :: BIGINT AS previous_version,
+        change_value :"version" :: bigint AS version,
+        change_value :"previousVersion" :: bigint AS previous_version,
         change_value :"owner" :"ObjectOwner" :: STRING AS object_owner,
+        change_value :"packageId" :: STRING AS package_id,
+        change_value :"modules" :: STRING AS modules
     FROM
         {{ ref('silver__transactions') }} A,
         LATERAL FLATTEN(
@@ -62,6 +64,8 @@ SELECT
     version,
     previous_version,
     object_owner,
+    package_id,
+    modules,
     {{ dbt_utils.generate_surrogate_key(['tx_digest','change_index']) }} AS fact_changes_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
