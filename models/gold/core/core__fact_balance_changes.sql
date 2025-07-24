@@ -24,10 +24,8 @@ WITH base AS (
         b.value AS bc_value,
         bc_value :"amount" :: bigint AS amount,
         bc_value :"coinType" :: STRING AS coin_type,
-        COALESCE(
-            bc_value :"owner" :"AddressOwner",
-            bc_value :"owner" :"ObjectOwner" :: STRING
-        ) AS owner
+        bc_value :"owner" :"AddressOwner" :: STRING AS address_owner,
+        bc_value :"owner" :"ObjectOwner" :: STRING AS object_owner,
     FROM
         {{ ref('silver__transactions') }} A,
         LATERAL FLATTEN(
@@ -54,7 +52,8 @@ SELECT
     balance_change_index,
     coin_type,
     amount,
-    owner,
+    object_owner,
+    address_owner,
     {{ dbt_utils.generate_surrogate_key(['tx_digest','balance_change_index']) }} AS fact_transaction_balance_changes_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp

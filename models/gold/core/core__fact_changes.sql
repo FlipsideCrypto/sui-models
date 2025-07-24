@@ -30,6 +30,8 @@ WITH base AS (
         change_value :"version" :: bigint AS version,
         change_value :"previousVersion" :: bigint AS previous_version,
         change_value :"owner" :"ObjectOwner" :: STRING AS object_owner,
+        change_value :"owner" :"AddressOwner" :: STRING AS address_owner,
+        change_value :"owner" :"Shared" :: STRING AS shared_owner,
         change_value :"packageId" :: STRING AS package_id,
         change_value :"modules" :: STRING AS modules
     FROM
@@ -64,6 +66,8 @@ SELECT
     version,
     previous_version,
     object_owner,
+    address_owner,
+    shared_owner,
     package_id,
     modules,
     {{ dbt_utils.generate_surrogate_key(['tx_digest','change_index']) }} AS fact_changes_id,
