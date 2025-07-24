@@ -9,25 +9,31 @@
 WITH coins AS (
 
     SELECT
-        coin_type
+        A.coin_type
     FROM
-        {{ ref('silver__coin_types') }}
+        {{ ref('silver__coin_types') }} A
 
 {% if is_incremental() %}
-EXCEPT
-SELECT
-    coin_type
-FROM
-    {{ this }}
+LEFT JOIN (
+    SELECT
+        coin_type
+    FROM
+        {{ this }}
+        {# WHERE
+        decimals IS NOT NULL --rerun if decimals is null and inserted_timestamp is within the last 7 days (if the token still doesnt have decimals after 7 day then we will stop trying)
+        OR (
+            decimals IS NULL
+            AND inserted_timestamp < CURRENT_DATE -7
+        ) #}
+) b
+ON A.coin_type = b.coin_type
 WHERE
-    decimals IS NOT NULL --rerun if decimals is null and inserted_timestamp is within the last 7 days (if the token still doesnt have decimals after 7 day then we will stop trying)
-    OR (
-        decimals IS NULL
-        AND inserted_timestamp < CURRENT_DATE -7
-    )
+    b.coin_type IS NULL
 {% endif %}
+ORDER BY
+    inserted_timestamp DESC
 LIMIT
-    100
+    10
 ), lq AS (
     SELECT
         coin_type,
