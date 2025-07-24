@@ -211,7 +211,7 @@ models:
         data_type: VARCHAR
       - name: SHARED_OWNER
         # description: "{{ doc('object_owner') }}"
-        data_type: VARCHAR
+        data_type: VARIANT
       - name: PACKAGE_ID
         # description: "{{ doc('object_owner') }}"
         data_type: VARCHAR

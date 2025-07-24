@@ -31,7 +31,7 @@ WITH base AS (
         change_value :"previousVersion" :: bigint AS previous_version,
         change_value :"owner" :"ObjectOwner" :: STRING AS object_owner,
         change_value :"owner" :"AddressOwner" :: STRING AS address_owner,
-        change_value :"owner" :"Shared" :: STRING AS shared_owner,
+        change_value :"owner" :"Shared" AS shared_owner,
         change_value :"packageId" :: STRING AS package_id,
         change_value :"modules" :: STRING AS modules
     FROM
