@@ -107,9 +107,6 @@ models:
         data_type: NUMBER
         tests:
           - not_null
-      # - name: OWNER
-      #   description: "{{ doc('owner') }}"
-      #   data_type: VARCHAR
       - name: OBJECT_OWNER
         description: "{{ doc('object_owner') }}"
         data_type: VARCHAR
@@ -356,7 +353,7 @@ models:
           - not_null
       - name: EVENT_INDEX
         description: "{{ doc('event_index') }}"
-        data_type: VARCHAR
+        data_type: NUMBER
         tests:
           - not_null
       - name: TYPE
