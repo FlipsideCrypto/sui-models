@@ -114,7 +114,7 @@ models:
         description: "{{ doc('object_owner') }}"
         data_type: VARCHAR
       - name: ADDRESS_OWNER
-        # description: "{{ doc('object_owner') }}"
+        description: "{{ doc('address_owner') }}"
         data_type: VARCHAR
       - name: FACT_TRANSACTION_BALANCE_CHANGES_ID
         description: "{{ doc('fact_transaction_balance_changes_id') }}"
@@ -207,16 +207,16 @@ models:
         description: "{{ doc('object_owner') }}"
         data_type: VARCHAR
       - name: ADDRESS_OWNER
-        # description: "{{ doc('object_owner') }}"
+        description: "{{ doc('address_owner') }}"
         data_type: VARCHAR
       - name: SHARED_OWNER
-        # description: "{{ doc('object_owner') }}"
+        description: "{{ doc('shared_owner') }}"
         data_type: VARIANT
       - name: PACKAGE_ID
-        # description: "{{ doc('object_owner') }}"
+        description: "{{ doc('package_id') }}"
         data_type: VARCHAR
       - name: MODULES
-        # description: "{{ doc('object_owner') }}"
+        description: "{{ doc('modules') }}"
         data_type: VARCHAR
       - name: FACT_CHANGES_ID
         description: "{{ doc('fact_changes_id') }}"
