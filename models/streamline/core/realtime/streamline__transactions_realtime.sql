@@ -6,7 +6,7 @@
         params ={ "external_table" :"transactions",
         "sql_limit" :"1000000",
         "producer_batch_size" :"100000",
-        "worker_batch_size" :"2500",
+        "worker_batch_size" :"2000",
         "async_concurrent_requests" :"10",
         "sql_source" :"{{this.identifier}}",
         'exploded_key': '["result"]',
