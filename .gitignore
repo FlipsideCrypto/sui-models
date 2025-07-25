@@ -19,3 +19,12 @@ package-lock.yml
 .env
 .DS_Store
 .user.yml
+
+# Cursor configuration
+.cursor/*
+!.cursor/rules
+
+# Local Claude configuration
+.claude/settings.local.json
+.claude/log
+CLAUDE.local.md
