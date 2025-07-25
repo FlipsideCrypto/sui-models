@@ -6,7 +6,7 @@ on:
     branches:
       - "main"
   schedule:
-    - cron: '10 */2 * * *' # Run every hour at 10 minutes past the hour
+    - cron: '10 * * * *' # Run every hour at 10 minutes past the hour
     
 env:
   DBT_PROFILES_DIR: "${{ vars.DBT_PROFILES_DIR }}"
