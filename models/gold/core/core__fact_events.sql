@@ -21,7 +21,7 @@ WITH base AS (
             ELSE TRUE
         END AS tx_succeeded,
         b.value AS event_value,
-        event_value :"id" :"eventSeq" :: STRING AS event_index,
+        event_value :"id" :"eventSeq" :: INT AS event_index,
         event_value :"packageId" :: STRING AS package_id,
         event_value :"transactionModule" :: STRING AS transaction_module,
         event_value :"sender" :: STRING AS sender,

@@ -107,8 +107,11 @@ models:
         data_type: NUMBER
         tests:
           - not_null
-      - name: OWNER
-        description: "{{ doc('owner') }}"
+      - name: OBJECT_OWNER
+        description: "{{ doc('object_owner') }}"
+        data_type: VARCHAR
+      - name: ADDRESS_OWNER
+        description: "{{ doc('address_owner') }}"
         data_type: VARCHAR
       - name: FACT_TRANSACTION_BALANCE_CHANGES_ID
         description: "{{ doc('fact_transaction_balance_changes_id') }}"
@@ -199,6 +202,18 @@ models:
         data_type: BIGINT
       - name: OBJECT_OWNER
         description: "{{ doc('object_owner') }}"
+        data_type: VARCHAR
+      - name: ADDRESS_OWNER
+        description: "{{ doc('address_owner') }}"
+        data_type: VARCHAR
+      - name: SHARED_OWNER
+        description: "{{ doc('shared_owner') }}"
+        data_type: VARIANT
+      - name: PACKAGE_ID
+        description: "{{ doc('package_id') }}"
+        data_type: VARCHAR
+      - name: MODULES
+        description: "{{ doc('modules') }}"
         data_type: VARCHAR
       - name: FACT_CHANGES_ID
         description: "{{ doc('fact_changes_id') }}"
@@ -338,7 +353,7 @@ models:
           - not_null
       - name: EVENT_INDEX
         description: "{{ doc('event_index') }}"
-        data_type: VARCHAR
+        data_type: NUMBER
         tests:
           - not_null
       - name: TYPE

@@ -19,3 +19,8 @@ package-lock.yml
 .env
 .DS_Store
 .user.yml
+
+.claude/log/*
+.claude/settings.local.json
+
+.cursor/mcp.json
