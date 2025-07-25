@@ -26,4 +26,5 @@ package-lock.yml
 
 # Local Claude configuration
 .claude/settings.local.json
+.claude/log
 CLAUDE.local.md

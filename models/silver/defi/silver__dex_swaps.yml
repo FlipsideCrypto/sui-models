@@ -1,0 +1,119 @@
+version: 2
+
+models:
+  - name: silver__dex_swaps
+    description: "{{ doc('silver__dex_swaps') }}"
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          interval: 3
+          field: block_timestamp
+
+    columns:
+      - name: CHECKPOINT_NUMBER
+        description: "{{ doc('checkpoint_number') }}"
+        tests:
+          - not_null
+
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        tests:
+          - not_null
+
+      - name: TX_DIGEST
+        description: "{{ doc('tx_digest') }}"
+        tests:
+          - not_null
+
+      - name: EVENT_INDEX
+        description: "{{ doc('event_index') }}"
+        tests:
+          - not_null
+
+      - name: PLATFORM
+        description: "{{ doc('platform') }}"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Cetus', 'Turbos', 'Bluefin', 'Aftermath AMM', 'FlowX', 'DeepBook', 'Momentum']
+
+      - name: PLATFORM_ADDRESS
+        description: "{{ doc('platform_address') }}"
+        tests:
+          - not_null
+
+      - name: POOL_ADDRESS
+        description: "{{ doc('pool_address') }}"
+
+      - name: AMOUNT_IN_RAW
+        description: "{{ doc('amount_in_raw') }}"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: AMOUNT_OUT_RAW
+        description: "{{ doc('amount_out_raw') }}"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: A_TO_B
+        description: "{{ doc('a_to_b') }}"
+
+      - name: FEE_AMOUNT_RAW
+        description: "{{ doc('fee_amount_raw') }}"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: PARTNER_ADDRESS
+        description: "{{ doc('partner_address') }}"
+
+      - name: REFERRAL_AMOUNT_RAW
+        description: "{{ doc('referral_amount_raw') }}"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: STEPS
+        description: "{{ doc('steps') }}"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "> 0"
+
+      - name: TOKEN_IN_TYPE
+        description: "{{ doc('token_in_type') }}"
+        tests:
+          - not_null
+
+      - name: TOKEN_OUT_TYPE
+        description: "{{ doc('token_out_type') }}"
+        tests:
+          - not_null
+
+      - name: TRADER_ADDRESS
+        description: "{{ doc('trader_address') }}"
+
+      - name: DEX_SWAPS_ID
+        description: "{{ doc('dex_swaps_id') }}"
+        tests:
+          - not_null
+          - unique
+
+      - name: INSERTED_TIMESTAMP
+        description: "{{ doc('inserted_timestamp') }}"
+        tests:
+          - not_null
+
+      - name: MODIFIED_TIMESTAMP
+        description: "{{ doc('modified_timestamp') }}"
+        tests:
+          - not_null
+
+      - name: _INVOCATION_ID
+        description: "{{ doc('_invocation_id') }}"
+        tests:
+          - not_null 
