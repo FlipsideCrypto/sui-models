@@ -3,15 +3,24 @@
     unique_key = "coin_type",
     merge_exclude_columns = ["inserted_timestamp"],
     full_refresh = false,
-    tags = ['silver','core']
+    tags = ['silver']
 ) }}
 
 WITH coins AS (
 
     SELECT
-        A.coin_type
+        A.coin_type,
+        x
     FROM
-        {{ ref('silver__coin_types') }} A
+        (
+            SELECT
+                A.coin_type,
+                COUNT(1) x
+            FROM
+                {{ ref('core__fact_balance_changes') }} A
+            GROUP BY
+                1
+        ) A
 
 {% if is_incremental() %}
 LEFT JOIN (
@@ -31,7 +40,7 @@ WHERE
     b.coin_type IS NULL
 {% endif %}
 ORDER BY
-    inserted_timestamp DESC
+    x DESC
 LIMIT
     10
 ), lq AS (
