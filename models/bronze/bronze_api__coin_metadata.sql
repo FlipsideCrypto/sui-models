@@ -48,7 +48,8 @@ LIMIT
         coin_type,
         {{ target.database }}.live.udf_api(
             'POST',
-            '{Service}/{Authentication}',
+            {# '{Service}/{Authentication}', #}
+            'https://sui-mainnet-endpoint.blockvision.org/',
             OBJECT_CONSTRUCT(
                 'Content-Type',
                 'application/json',
@@ -66,8 +67,8 @@ LIMIT
                 ARRAY_CONSTRUCT(
                     coin_type
                 )
-            ),
-            'Vault/prod/sui/quicknode/mainnet'
+            ) {# ,
+            'Vault/prod/sui/quicknode/mainnet' #}
         ) :data: "result" AS DATA
     FROM
         coins
