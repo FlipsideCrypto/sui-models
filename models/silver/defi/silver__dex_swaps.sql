@@ -13,6 +13,7 @@ WITH core_events AS (
         checkpoint_number,
         block_timestamp,
         tx_digest,
+        tx_sender,
         event_index,
         type,
         event_address,
@@ -40,12 +41,16 @@ WITH core_events AS (
             OR type = '0x25929e7f29e0a30eb4e692952ba1b5b65a3a4d65ab5f2a32e1ba3edcb587f26d::pool::Swap' -- FlowX
             OR type = '0xe8f996ea6ff38c557c253d3b93cfe2ebf393816487266786371aa4532a9229f2::settle::Swap' -- DeepBook
             OR type = '0x0018f7bbbece22f4272ed2281b290f745e5aa69d870f599810a30b4eeffc1a5e::momentum::MomentumSwapEvent' -- Momentum
+            OR type = '0x200e762fa2c49f3dc150813038fbf22fd4f894ac6f23ebe1085c62f2ef97f1ca::obric::ObricSwapEvent' -- OBRIC
         )
+        -- limit to 30 days for dev
+        AND block_timestamp >= sysdate() - interval '30 days'
 ),
 
 fact_transactions AS (
     SELECT
         tx_digest,
+        payload_index,
         payload_details
     FROM
         {{ ref('core__fact_transactions') }}
@@ -60,6 +65,8 @@ fact_transactions AS (
                 {{ this }}
         )
 {% endif %}
+    -- limit to 30 days for dev
+    AND block_timestamp >= sysdate() - interval '30 days'
 ),
 
 cetus_swaps AS (
@@ -86,10 +93,11 @@ cetus_swaps AS (
             WHEN e.parsed_json:atob::BOOLEAN = TRUE THEN tx.payload_details:type_arguments[1]::STRING
             ELSE tx.payload_details:type_arguments[0]::STRING
         END AS token_out_type,
-        NULL AS trader_address,
+        e.tx_sender AS trader_address,
         e.modified_timestamp
     FROM core_events e
-    LEFT JOIN fact_transactions tx ON e.tx_digest = tx.tx_digest
+    LEFT JOIN fact_transactions tx ON e.tx_digest = tx.tx_digest 
+        AND tx.payload_details:module::STRING = 'cetus'
     WHERE e.type = '0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::SwapEvent'
 ),
 
@@ -126,7 +134,8 @@ turbos_swaps AS (
         e.parsed_json:recipient::STRING AS trader_address,
         e.modified_timestamp
     FROM core_events e
-    LEFT JOIN fact_transactions tx ON e.tx_digest = tx.tx_digest
+    LEFT JOIN fact_transactions tx ON e.tx_digest = tx.tx_digest 
+        AND tx.payload_details:module::STRING = 'turbos'
     WHERE e.type = '0x91bfbc386a41afcfd9b2533058d7e915a1d3829089cc268ff4333d54d6339ca1::pool::SwapEvent'
 ),
 
@@ -148,10 +157,11 @@ bluefin_swaps AS (
         1 AS steps,
         tx.payload_details:type_arguments[0]::STRING AS token_in_type,
         tx.payload_details:type_arguments[1]::STRING AS token_out_type,
-        NULL AS trader_address,
+        e.tx_sender AS trader_address,
         e.modified_timestamp
     FROM core_events e
-    LEFT JOIN fact_transactions tx ON e.tx_digest = tx.tx_digest
+    LEFT JOIN fact_transactions tx ON e.tx_digest = tx.tx_digest 
+        AND tx.payload_details:module::STRING = 'bluefin'
     WHERE e.type = '0x3b6d71bdeb8ce5b06febfd3cfc29ecd60d50da729477c8b8038ecdae34541b91::bluefin::BluefinSwapEvent'
 ),
 
@@ -198,10 +208,11 @@ flowx_swaps AS (
         1 AS steps,
         tx.payload_details:type_arguments[0]::STRING AS token_in_type,
         tx.payload_details:type_arguments[1]::STRING AS token_out_type,
-        NULL AS trader_address,
+        e.tx_sender AS trader_address,
         e.modified_timestamp
     FROM core_events e
-    LEFT JOIN fact_transactions tx ON e.tx_digest = tx.tx_digest
+    LEFT JOIN fact_transactions tx ON e.tx_digest = tx.tx_digest 
+        AND tx.payload_details:module::STRING = 'flowx'
     WHERE e.type = '0x25929e7f29e0a30eb4e692952ba1b5b65a3a4d65ab5f2a32e1ba3edcb587f26d::pool::Swap'
 ),
 
@@ -223,10 +234,11 @@ deepbook_swaps AS (
         1 AS steps,
         tx.payload_details:type_arguments[0]::STRING AS token_in_type,
         tx.payload_details:type_arguments[1]::STRING AS token_out_type,
-        NULL AS trader_address,
+        e.tx_sender AS trader_address,
         e.modified_timestamp
     FROM core_events e
-    LEFT JOIN fact_transactions tx ON e.tx_digest = tx.tx_digest
+    LEFT JOIN fact_transactions tx ON e.tx_digest = tx.tx_digest 
+        AND tx.payload_details:module::STRING = 'deepbook'
     WHERE e.type = '0xe8f996ea6ff38c557c253d3b93cfe2ebf393816487266786371aa4532a9229f2::settle::Swap'
 ),
 
@@ -255,10 +267,42 @@ momentum_swaps AS (
             WHEN parsed_json:a2b::BOOLEAN = TRUE THEN CONCAT('0x', parsed_json:coin_b:name::STRING)
             ELSE CONCAT('0x', parsed_json:coin_a:name::STRING)
         END AS token_out_type,
-        NULL AS trader_address,
+        tx_sender AS trader_address,
         modified_timestamp
     FROM core_events
     WHERE type = '0x0018f7bbbece22f4272ed2281b290f745e5aa69d870f599810a30b4eeffc1a5e::momentum::MomentumSwapEvent'
+),
+
+obric_swaps AS (
+    SELECT
+        e.checkpoint_number,
+        e.block_timestamp,
+        e.tx_digest,
+        e.event_index,
+        'OBRIC' AS platform,
+        e.event_address AS platform_address,
+        e.parsed_json:pool_id::STRING AS pool_address,
+        e.parsed_json:amount_in::NUMBER AS amount_in_raw,
+        e.parsed_json:amount_out::NUMBER AS amount_out_raw,
+        e.parsed_json:a2b::BOOLEAN AS a_to_b,
+        0 AS fee_amount_raw,
+        NULL AS partner_address,
+        0 AS referral_amount_raw,
+        1 AS steps,
+        CASE 
+            WHEN e.parsed_json:a2b::BOOLEAN = TRUE THEN tx.payload_details:type_arguments[0]::STRING
+            ELSE tx.payload_details:type_arguments[1]::STRING
+        END AS token_in_type,
+        CASE 
+            WHEN e.parsed_json:a2b::BOOLEAN = TRUE THEN tx.payload_details:type_arguments[1]::STRING
+            ELSE tx.payload_details:type_arguments[0]::STRING
+        END AS token_out_type,
+        tx_sender AS trader_address,
+        e.modified_timestamp
+    FROM core_events e
+    LEFT JOIN fact_transactions tx ON e.tx_digest = tx.tx_digest 
+        AND tx.payload_details:module::STRING = 'obric'
+    WHERE e.type = '0x200e762fa2c49f3dc150813038fbf22fd4f894ac6f23ebe1085c62f2ef97f1ca::obric::ObricSwapEvent'
 ),
 
 all_swaps AS (
@@ -275,6 +319,8 @@ all_swaps AS (
     SELECT * FROM deepbook_swaps
     UNION ALL
     SELECT * FROM momentum_swaps
+    UNION ALL
+    SELECT * FROM obric_swaps
 )
 
 SELECT
