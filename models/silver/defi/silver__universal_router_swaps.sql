@@ -35,7 +35,11 @@ WITH core_events AS (
         )
         AND
 {% endif %}
-        type = '0xc263060d3cbb4155057f0010f92f63ca56d5121c298d01f7a33607342ec299b0::universal_router::Swap'
+        type IN (
+            '0xc263060d3cbb4155057f0010f92f63ca56d5121c298d01f7a33607342ec299b0::universal_router::Swap', -- Universal Router
+            '0xd675e6d727bb2d63087cc12008bb91e399dc7570100f72051993ec10c0428f4a::events::SwapCompletedEventV2', -- Aftermath AMM
+            '0xe8f996ea6ff38c557c253d3b93cfe2ebf393816487266786371aa4532a9229f2::settle::Swap' -- DeepBook
+        )
         -- limit to 30 days for dev
         AND block_timestamp >= sysdate() - interval '30 days'
 )

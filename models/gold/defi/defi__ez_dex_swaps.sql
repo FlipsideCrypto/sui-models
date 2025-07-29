@@ -4,7 +4,7 @@
     cluster_by = ['modified_timestamp::DATE','block_timestamp::DATE'],
     incremental_predicates = ["dynamic_range_predicate", "block_timestamp::date"],
     merge_exclude_columns = ["inserted_timestamp"],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_digest, event_index, trader_address, platform);",
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_digest, event_index, trader_address, platform_address);",
     tags = ['gold','defi']
 ) }}
 
@@ -14,7 +14,7 @@ WITH base_swaps AS (
         block_timestamp,
         tx_digest,
         event_index,
-        platform,
+        event_module,
         platform_address,
         pool_address,
         amount_in_raw,
@@ -22,7 +22,6 @@ WITH base_swaps AS (
         a_to_b,
         fee_amount_raw,
         partner_address,
-        referral_amount_raw,
         steps,
         token_in_type,
         token_out_type,
@@ -152,11 +151,7 @@ with_labels AS (
         
         -- Pool labels  
         l_pool.address_name as pool_address_label,
-        l_pool.project_name as pool_project_name,
-        
-        -- Trader labels
-        l_trader.address_name as trader_address_label,
-        l_trader.project_name as trader_project_name
+        l_pool.project_name as pool_project_name
         
     FROM with_all_prices wap
     
@@ -171,11 +166,6 @@ with_labels AS (
         ON LOWER(wap.pool_address) = LOWER(l_pool.address)
         AND l_pool.blockchain = 'sui'
         AND l_pool.label_subtype = 'pool'
-        
-    -- Trader address labels
-    LEFT JOIN crosschain.core.dim_labels l_trader
-        ON LOWER(wap.trader_address) = LOWER(l_trader.address)
-        AND l_trader.blockchain = 'sui'
 )
 
 SELECT
@@ -186,13 +176,10 @@ SELECT
     event_index,
     
     -- Platform information
-    platform,
     platform_address,
-    COALESCE(platform_address_label, platform_address) as platform_name,
-    platform_project_name,
+    COALESCE(platform_project_name, pool_project_name, event_module) as platform_name,
     pool_address,
     COALESCE(pool_address_label, pool_address) as pool_name,
-    pool_project_name,
     
     -- Swap details
     amount_in_raw,
@@ -200,7 +187,6 @@ SELECT
     a_to_b,
     fee_amount_raw,
     partner_address,
-    referral_amount_raw,
     steps,
     
     -- Token information
@@ -255,8 +241,6 @@ SELECT
     
     -- Trader information
     trader_address,
-    COALESCE(trader_address_label, trader_address) as trader_name,
-    trader_project_name,
     
     -- Metadata
     dex_swaps_id,
