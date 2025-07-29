@@ -4,7 +4,7 @@
         func = 'streamline.udf_bulk_rest_api_v2',
         target = "{{this.schema}}.{{this.identifier}}",
         params ={ "external_table" :"transactions",
-        "sql_limit" :"1000000",
+        "sql_limit" :"800000",
         "producer_batch_size" :"100000",
         "worker_batch_size" :"2500",
         "async_concurrent_requests" :"8",
@@ -114,4 +114,4 @@ FROM
 ORDER BY
     block_timestamp DESC
 LIMIT
-    1000000
+    800000
