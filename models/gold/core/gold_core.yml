@@ -107,8 +107,11 @@ models:
         data_type: NUMBER
         tests:
           - not_null
-      - name: OWNER
-        description: "{{ doc('owner') }}"
+      - name: OBJECT_OWNER
+        description: "{{ doc('object_owner') }}"
+        data_type: VARCHAR
+      - name: ADDRESS_OWNER
+        description: "{{ doc('address_owner') }}"
         data_type: VARCHAR
       - name: FACT_TRANSACTION_BALANCE_CHANGES_ID
         description: "{{ doc('fact_transaction_balance_changes_id') }}"
@@ -199,6 +202,18 @@ models:
         data_type: BIGINT
       - name: OBJECT_OWNER
         description: "{{ doc('object_owner') }}"
+        data_type: VARCHAR
+      - name: ADDRESS_OWNER
+        description: "{{ doc('address_owner') }}"
+        data_type: VARCHAR
+      - name: SHARED_OWNER
+        description: "{{ doc('shared_owner') }}"
+        data_type: VARIANT
+      - name: PACKAGE_ID
+        description: "{{ doc('package_id') }}"
+        data_type: VARCHAR
+      - name: MODULES
+        description: "{{ doc('modules') }}"
         data_type: VARCHAR
       - name: FACT_CHANGES_ID
         description: "{{ doc('fact_changes_id') }}"
@@ -338,7 +353,7 @@ models:
           - not_null
       - name: EVENT_INDEX
         description: "{{ doc('event_index') }}"
-        data_type: VARCHAR
+        data_type: NUMBER
         tests:
           - not_null
       - name: TYPE
@@ -624,6 +639,191 @@ models:
         data_type: VARIANT
       - name: FACT_TRANSACTIONS_ID
         description: "{{ doc('fact_transactions_id') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+          - unique
+      - name: INSERTED_TIMESTAMP
+        description: "{{ doc('inserted_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: MODIFIED_TIMESTAMP
+        description: "{{ doc('modified_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          field: block_timestamp
+          interval: 12
+          severity: error
+          tags: ['test_recency']
+
+  - name: core__dim_labels
+    description: "The labels table is a store of one-to-one address identifiers, or an address name. Labels are broken out into a \"type\" (such as cex, dex, dapp, games, etc.) and a \"subtype\" (ex: contract_deployer, hot_wallet, token_contract, etc.) in order to help classify each address name into similar groups. Our labels are sourced from many different places, but can primarily be grouped into two categories: automatic and manual. Automatic labels are continuously labeled based on certain criteria, such as a known contract deploying another contract, behavior based algorithms for finding deposit wallets, and consistent data pulls of custom protocol APIs. Manual labels are done periodically to find addresses that cannot be found programmatically such as finding new protocol addresses, centralized exchange hot wallets, or trending addresses. Labels can also be added by our community by using our add-a-label tool (https://science.flipsidecrypto.xyz/add-a-label/).A label can be removed by our labels team if it is found to be incorrect or no longer relevant; this generally will only happen for mislabeled deposit wallets."
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ADDRESS
+    columns:
+      - name: ADDRESS
+        description: "Raw address string"
+      - name: BLOCKCHAIN
+        description: "In this table, always ton. Used to join to cross-chain tables."
+      - name: CREATOR
+        description: "Name of the label creator - for now, this will always be \"Flipside.\""
+      - name: LABEL_TYPE
+        description: "A broad category that describes what a label is representing."
+      - name: LABEL_SUBTYPE
+        description: "Adds more detail to the label type."
+      - name: LABEL 
+        description: "The label or name of the address." 
+      - name: ADDRESS_NAME
+        description: "Name of the labeled address" 
+      - name: DIM_LABELS_ID
+        description: "Unique primary key for the dimension table, used as the main identifier for each record."  
+      - name: INSERTED_TIMESTAMP
+        description: "Timestamp when this record was inserted."
+      - name: MODIFIED_TIMESTAMP
+        description: "Timestamp when this record was last modified."
+
+  - name: core__fact_transfers
+    description: "{{ doc('core__fact_transfers') }}"
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: CHECKPOINT_NUMBER
+        description: "{{ doc('checkpoint_number') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: TX_DIGEST
+        description: "{{ doc('tx_digest') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: TX_SUCCEEDED
+        description: "{{ doc('tx_succeeded') }}"
+        data_type: BOOLEAN
+        tests:
+          - not_null
+      - name: SENDER
+        description: "{{ doc('sender') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: RECEIVER
+        description: "{{ doc('receiver') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: BALANCE_CHANGE_INDEX
+        description: "{{ doc('balance_change_index') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: COIN_TYPE
+        description: "{{ doc('coin_type') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: AMOUNT
+        description: "{{ doc('amount') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: FACT_TRANSFERS_ID
+        description: "{{ doc('fact_transfers_id') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+          - unique
+      - name: INSERTED_TIMESTAMP
+        description: "{{ doc('inserted_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: MODIFIED_TIMESTAMP
+        description: "{{ doc('modified_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          field: block_timestamp
+          interval: 12
+          severity: error
+          tags: ['test_recency']
+
+  - name: core__ez_transfers
+    description: "{{ doc('core__ez_transfers') }}"
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: CHECKPOINT_NUMBER
+        description: "{{ doc('checkpoint_number') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: TX_DIGEST
+        description: "{{ doc('tx_digest') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: BALANCE_CHANGE_INDEX
+        description: "{{ doc('balance_change_index') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: TX_SUCCEEDED
+        description: "{{ doc('tx_succeeded') }}"
+        data_type: BOOLEAN
+        tests:
+          - not_null
+      - name: SENDER
+        description: "{{ doc('sender') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: RECEIVER
+        description: "{{ doc('receiver') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: COIN_TYPE
+        description: "{{ doc('coin_type') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: SYMBOL
+        description: "{{ doc('symbol') }}"
+        data_type: VARCHAR
+      - name: AMOUNT
+        description: "{{ doc('amount') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: AMOUNT_NORMALIZED
+        description: "{{ doc('amount_normalized') }}"
+        data_type: FLOAT
+      - name: EZ_TRANSFERS_ID
+        description: "{{ doc('ez_transfers_id') }}"
         data_type: VARCHAR
         tests:
           - not_null

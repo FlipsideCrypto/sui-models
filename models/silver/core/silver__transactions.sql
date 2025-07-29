@@ -48,7 +48,9 @@ SELECT
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    bronze_txs qualify ROW_NUMBER() over (
+    bronze_txs
+WHERE
+    block_timestamp IS NOT NULL qualify ROW_NUMBER() over (
         PARTITION BY tx_digest
         ORDER BY
             _inserted_timestamp DESC
