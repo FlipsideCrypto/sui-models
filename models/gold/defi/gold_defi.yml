@@ -1,0 +1,125 @@
+version: 2
+
+models:
+  - name: defi__ez_dex_swaps
+    description: "{{ doc('defi__ez_dex_swaps') }}"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - TX_DIGEST
+            - EVENT_INDEX
+      - compare_model_subset:
+          name: defi__ez_dex_swaps_business_logic_test
+          compare_model: ref('silver__dex_swaps')
+          compare_columns: 
+            - tx_digest
+            - event_index
+            - platform
+          model_condition: "where tx_digest in (select tx_digest from {{ ref('silver__dex_swaps') }} limit 1000)"
+
+
+    columns:
+      - name: CHECKPOINT_NUMBER
+        description: "{{ doc('checkpoint_number') }}"
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: hour
+              interval: 36
+      - name: TX_DIGEST
+        description: "{{ doc('tx_digest') }}"
+        tests:
+          - not_null
+      - name: EVENT_INDEX
+        description: "{{ doc('event_index') }}"
+        tests:
+          - not_null
+      - name: PLATFORM
+        description: "{{ doc('platform') }}"
+        tests:
+          - not_null
+      - name: PLATFORM_ADDRESS
+        description: "{{ doc('platform_address') }}"
+      - name: PLATFORM_NAME
+        description: "{{ doc('platform_name') }}"
+      - name: PLATFORM_PROJECT_NAME
+        description: "{{ doc('platform_project_name') }}"
+      - name: POOL_ADDRESS
+        description: "{{ doc('pool_address') }}"
+      - name: POOL_NAME
+        description: "{{ doc('pool_name') }}"
+      - name: POOL_PROJECT_NAME
+        description: "{{ doc('pool_project_name') }}"
+      - name: AMOUNT_IN_RAW
+        description: "{{ doc('amount_in_raw') }}"
+      - name: AMOUNT_OUT_RAW
+        description: "{{ doc('amount_out_raw') }}"
+      - name: AMOUNT_IN
+        description: "{{ doc('amount_in') }}"
+      - name: AMOUNT_OUT
+        description: "{{ doc('amount_out') }}"
+      - name: FEE_AMOUNT_RAW
+        description: "{{ doc('fee_amount_raw') }}"
+      - name: FEE_AMOUNT
+        description: "{{ doc('fee_amount') }}"
+      - name: TOKEN_IN_TYPE
+        description: "{{ doc('token_in_type') }}"
+      - name: TOKEN_IN_ADDRESS
+        description: "{{ doc('token_in_address') }}"
+      - name: TOKEN_IN_SYMBOL
+        description: "{{ doc('token_in_symbol') }}"
+      - name: TOKEN_IN_NAME
+        description: "{{ doc('token_in_name') }}"
+      - name: TOKEN_OUT_TYPE
+        description: "{{ doc('token_out_type') }}"
+      - name: TOKEN_OUT_ADDRESS
+        description: "{{ doc('token_out_address') }}"
+      - name: TOKEN_OUT_SYMBOL
+        description: "{{ doc('token_out_symbol') }}"
+      - name: TOKEN_OUT_NAME
+        description: "{{ doc('token_out_name') }}"
+      - name: TOKEN_IN_PRICE
+        description: "{{ doc('token_in_price') }}"
+      - name: TOKEN_OUT_PRICE
+        description: "{{ doc('token_out_price') }}"
+      - name: TOKEN_IN_DECIMALS
+        description: "{{ doc('token_in_decimals') }}"
+      - name: TOKEN_OUT_DECIMALS
+        description: "{{ doc('token_out_decimals') }}"
+      - name: AMOUNT_IN_USD
+        description: "{{ doc('amount_in_usd') }}"
+      - name: AMOUNT_OUT_USD
+        description: "{{ doc('amount_out_usd') }}"
+      - name: SWAP_VOLUME_USD
+        description: "{{ doc('swap_volume_usd') }}"
+      - name: TRADER_ADDRESS
+        description: "{{ doc('trader_address') }}"
+      - name: TRADER_NAME
+        description: "{{ doc('trader_name') }}"
+      - name: TRADER_PROJECT_NAME
+        description: "{{ doc('trader_project_name') }}"
+      - name: A_TO_B
+        description: "{{ doc('a_to_b') }}"
+      - name: PARTNER_ADDRESS
+        description: "{{ doc('partner_address') }}"
+      - name: REFERRAL_AMOUNT_RAW
+        description: "{{ doc('referral_amount_raw') }}"
+      - name: STEPS
+        description: "{{ doc('steps') }}"
+      - name: DEX_SWAPS_ID
+        description: "{{ doc('dex_swaps_id') }}"
+        tests:
+          - not_null
+          - unique
+      - name: INSERTED_TIMESTAMP
+        description: "{{ doc('inserted_timestamp') }}"
+        tests:
+          - not_null
+      - name: MODIFIED_TIMESTAMP
+        description: "{{ doc('modified_timestamp') }}"
+        tests:
+          - not_null

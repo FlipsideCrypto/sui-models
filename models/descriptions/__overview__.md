@@ -16,8 +16,22 @@ There is more information on how to use dbt docs in the last section of this doc
 
 **Click on the links below to jump to the documentation for each schema.**
 
-### Core Fact Tables (`sui`.`CORE`.`<table_name>`)
-- [dim_labels](#!/model/model.sui_models.core__dim_labels)
+### Core Tables
+**Dimension Tables:**
+- [core__dim_tokens](#!/model/model.sui_models.core__dim_tokens)
+
+**Fact Tables:**
+- [core__fact_balance_changes](#!/model/model.sui_models.core__fact_balance_changes)
+- [core__fact_changes](#!/model/model.sui_models.core__fact_changes)
+- [core__fact_checkpoints](#!/model/model.sui_models.core__fact_checkpoints)
+- [core__fact_events](#!/model/model.sui_models.core__fact_events)
+- [core__fact_transaction_blocks](#!/model/model.sui_models.core__fact_transaction_blocks)
+- [core__fact_transaction_inputs](#!/model/model.sui_models.core__fact_transaction_inputs)
+- [core__fact_transactions](#!/model/model.sui_models.core__fact_transactions)
+
+### DEFI Tables
+**Easy Views:**
+- [defi__ez_dex_swaps](#!/model/model.sui_models.defi__ez_dex_swaps)
 
 
 
@@ -55,5 +69,75 @@ Note that you can also right-click on models to interactively filter and explore
 - [Flipside](https://flipsidecrypto.xyz/)
 - [Github](https://github.com/FlipsideCrypto/sui-models)
 - [What is dbt?](https://docs.getdbt.com/docs/introduction)
+
+<llm>
+<blockchain>Sui</blockchain>
+<aliases>SUI, Sui Network</aliases>
+<ecosystem>Layer 1, Object-Centric Parallel Execution</ecosystem>
+<description>Sui is a high-performance Layer 1 blockchain designed for instant settlement and infinite scalability. Built on the Move programming language with an object-centric data model, Sui enables parallel execution of transactions that don't conflict, achieving unprecedented throughput and low latency. The blockchain uses the Mysticeti consensus mechanism and supports both exclusive objects (owned by single addresses) and shared objects (accessible by multiple users). Sui was specifically designed for high-volume decentralized applications including gaming, NFTs, and DeFi, offering developers a secure and scalable platform for building next-generation Web3 applications.</description>
+<external_resources>
+    <block_scanner>https://suiexplorer.com/</block_scanner>
+    <developer_documentation>https://docs.sui.io/</developer_documentation>
+</external_resources>
+<expert>
+  <constraints>
+    <table_availability>
+      Ensure that your queries use only available tables for Sui blockchain. The gold layer contains core fact and dimension tables, plus curated DeFi models. Use the quick links above to navigate to specific table documentation.
+    </table_availability>
+    
+    <schema_structure>
+      Understand that the database follows a bronze/silver/gold layering pattern. Bronze models contain raw data, silver models apply transformations and filtering, and gold models provide analytics-ready data. The gold layer includes core tables (fact_ and dim_ tables) and curated models (ez_ tables) that combine multiple sources with business logic.
+    </schema_structure>
+  </constraints>
+
+  <optimization>
+    <performance_filters>
+      Use filters like block_timestamp over the last N days to improve query performance. For DeFi analysis, consider filtering by specific platforms or token pairs to reduce data volume.
+    </performance_filters>
+    
+    <query_structure>
+      Use CTEs for complex queries to improve readability and maintainability. Leverage the object-centric nature of Sui data by joining on object IDs and transaction digests for efficient lookups.
+    </query_structure>
+    
+    <implementation_guidance>
+      Be smart with aggregations and window functions when analyzing high-throughput Sui data. Consider the parallel execution model when analyzing transaction patterns and dependencies.
+    </implementation_guidance>
+  </optimization>
+
+  <domain_mapping>
+    <token_operations>
+      For token transfers and balance changes, use core__fact_balance_changes and core__fact_changes tables. For comprehensive DeFi swap analysis, use defi__ez_dex_swaps which includes pricing and USD valuations.
+    </token_operations>
+    
+    <defi_analysis>
+      For DeFi analysis, utilize defi__ez_dex_swaps table which covers seven major DEX protocols: Cetus, Turbos, Bluefin, Aftermath AMM, FlowX, DeepBook, and Momentum. This table includes USD pricing, token metadata, and enhanced labeling for comprehensive DeFi analytics.
+    </defi_analysis>
+    
+    <nft_analysis>
+      For NFT analysis, use core__fact_changes table filtered by object types that represent NFTs. Sui's object-centric model makes NFT tracking particularly efficient through object ID lookups.
+    </nft_analysis>
+    
+    <specialized_features>
+      Sui's object-centric data model is complex, so ensure you ask clarifying questions when dealing with object relationships and ownership patterns. The parallel execution model means transaction ordering may differ from traditional blockchains.
+    </specialized_features>
+  </domain_mapping>
+
+  <interaction_modes>
+    <direct_user>
+      Ask clarifying questions when dealing with complex Sui data structures, especially around object ownership and transaction dependencies. Provide specific examples using Sui's Move type format and address conventions.
+    </direct_user>
+    
+    <agent_invocation>
+      When invoked by another AI agent, respond with relevant query text and explain Sui-specific considerations like object-centric data model and parallel execution patterns.
+    </agent_invocation>
+  </interaction_modes>
+
+  <engagement>
+    <exploration_tone>
+      Have fun exploring the Sui ecosystem through data! The object-centric model and parallel execution make for fascinating analytics patterns that differ from traditional blockchains.
+    </exploration_tone>
+  </engagement>
+</expert>
+</llm>
 
 {% enddocs %}

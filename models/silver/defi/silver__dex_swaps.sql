@@ -103,66 +103,66 @@ cetus_swaps AS (
 
 turbos_swaps AS (
     SELECT
-        e.checkpoint_number,
-        e.block_timestamp,
-        e.tx_digest,
-        e.event_index,
+        checkpoint_number,
+        block_timestamp,
+        tx_digest,
+        event_index,
         'Turbos' AS platform,
-        e.event_address AS platform_address,
-        e.parsed_json:pool::STRING AS pool_address,
-        CASE 
-            WHEN e.parsed_json:a_to_b::BOOLEAN = TRUE THEN e.parsed_json:amount_a::NUMBER
-            ELSE e.parsed_json:amount_b::NUMBER
-        END AS amount_in_raw,
-        CASE 
-            WHEN e.parsed_json:a_to_b::BOOLEAN = TRUE THEN e.parsed_json:amount_b::NUMBER
-            ELSE e.parsed_json:amount_a::NUMBER
-        END AS amount_out_raw,
-        e.parsed_json:a_to_b::BOOLEAN AS a_to_b,
-        e.parsed_json:fee_amount::NUMBER AS fee_amount_raw,
+        event_address AS platform_address,
+        parsed_json:pool::STRING AS pool_address,
+        parsed_json:amount_in::NUMBER AS amount_in_raw,
+        parsed_json:amount_out::NUMBER AS amount_out_raw,
+        parsed_json:a_to_b::BOOLEAN AS a_to_b,
+        parsed_json:fee_amount::NUMBER AS fee_amount_raw,
         NULL AS partner_address,
-        0 AS referral_amount_raw,
+        NULL AS referral_amount_raw,
         1 AS steps,
-        CASE 
-            WHEN e.parsed_json:a_to_b::BOOLEAN = TRUE THEN tx.payload_details:type_arguments[0]::STRING
-            ELSE tx.payload_details:type_arguments[1]::STRING
-        END AS token_in_type,
-        CASE 
-            WHEN e.parsed_json:a_to_b::BOOLEAN = TRUE THEN tx.payload_details:type_arguments[1]::STRING
-            ELSE tx.payload_details:type_arguments[0]::STRING
-        END AS token_out_type,
-        e.parsed_json:recipient::STRING AS trader_address,
-        e.modified_timestamp
-    FROM core_events e
-    LEFT JOIN fact_transactions tx ON e.tx_digest = tx.tx_digest 
-        AND tx.payload_details:module::STRING = 'turbos'
-    WHERE e.type = '0x91bfbc386a41afcfd9b2533058d7e915a1d3829089cc268ff4333d54d6339ca1::pool::SwapEvent'
+        IFF(
+            parsed_json:a_to_b::BOOLEAN,
+            parsed_json:coin_a:name::STRING,
+            parsed_json:coin_b:name::STRING
+        ) AS token_in_type,
+        IFF(
+            parsed_json:a_to_b::BOOLEAN,
+            parsed_json:coin_b:name::STRING,
+            parsed_json:coin_a:name::STRING
+        ) AS token_out_type,
+        tx_sender AS trader_address,
+        modified_timestamp
+    FROM core_events
+    WHERE type = '0x91bfbc386a41afcfd9b2533058d7e915a1d3829089cc268ff4333d54d6339ca1::pool::SwapEvent'
 ),
 
 bluefin_swaps AS (
     SELECT
-        e.checkpoint_number,
-        e.block_timestamp,
-        e.tx_digest,
-        e.event_index,
+        checkpoint_number,
+        block_timestamp,
+        tx_digest,
+        event_index,
         'Bluefin' AS platform,
-        e.event_address AS platform_address,
-        NULL AS pool_address,
-        e.parsed_json:amount_in::NUMBER AS amount_in_raw,
-        e.parsed_json:amount_out::NUMBER AS amount_out_raw,
-        NULL AS a_to_b,
-        0 AS fee_amount_raw,
+        event_address AS platform_address,
+        parsed_json:pool::STRING AS pool_address,
+        parsed_json:amount_in::NUMBER AS amount_in_raw,
+        parsed_json:amount_out::NUMBER AS amount_out_raw,
+        parsed_json:a2b::BOOLEAN AS a_to_b,
+        NULL AS fee_amount_raw,
         NULL AS partner_address,
-        0 AS referral_amount_raw,
+        NULL AS referral_amount_raw,
         1 AS steps,
-        tx.payload_details:type_arguments[0]::STRING AS token_in_type,
-        tx.payload_details:type_arguments[1]::STRING AS token_out_type,
-        e.tx_sender AS trader_address,
-        e.modified_timestamp
-    FROM core_events e
-    LEFT JOIN fact_transactions tx ON e.tx_digest = tx.tx_digest 
-        AND tx.payload_details:module::STRING = 'bluefin'
-    WHERE e.type = '0x3b6d71bdeb8ce5b06febfd3cfc29ecd60d50da729477c8b8038ecdae34541b91::bluefin::BluefinSwapEvent'
+        IFF(
+            parsed_json:a2b::BOOLEAN,
+            parsed_json:coin_a:name::STRING,
+            parsed_json:coin_b:name::STRING
+        )::STRING AS token_in_type,
+        IFF(
+            parsed_json:a2b::BOOLEAN,
+            parsed_json:coin_b:name::STRING,
+            parsed_json:coin_a:name::STRING
+        )::STRING AS token_out_type,
+        tx_sender AS trader_address,
+        modified_timestamp
+    FROM core_events
+    WHERE type = '0x3b6d71bdeb8ce5b06febfd3cfc29ecd60d50da729477c8b8038ecdae34541b91::bluefin::BluefinSwapEvent'
 ),
 
 aftermath_amm_swaps AS (
@@ -178,12 +178,11 @@ aftermath_amm_swaps AS (
         parsed_json:amount_out::NUMBER AS amount_out_raw,
         NULL AS a_to_b,
         parsed_json:router_fee::NUMBER AS fee_amount_raw,
-        NULL AS partner_address,
-        0 AS referral_amount_raw,
+        parsed_json:referrer::STRING AS partner_address, -- or router_fee_recipient?
+        parsed_json:router_fee::NUMBER AS referral_amount_raw, -- router vs referrer?
         1 AS steps,
-        -- Add 0x prefix to token addresses to match pricing data format
-        CONCAT('0x', SPLIT(parsed_json:type_in::STRING, '::')[0], '::', SPLIT(parsed_json:type_in::STRING, '::')[1], '::', SPLIT(parsed_json:type_in::STRING, '::')[2]) AS token_in_type,
-        CONCAT('0x', SPLIT(parsed_json:type_out::STRING, '::')[0], '::', SPLIT(parsed_json:type_out::STRING, '::')[1], '::', SPLIT(parsed_json:type_out::STRING, '::')[2]) AS token_out_type,
+        parsed_json:type_in::STRING AS token_in_type,
+        parsed_json:type_out::STRING AS token_out_type,
         parsed_json:swapper::STRING AS trader_address,
         modified_timestamp
     FROM core_events
@@ -199,47 +198,63 @@ flowx_swaps AS (
         'FlowX' AS platform,
         e.event_address AS platform_address,
         e.parsed_json:pool_id::STRING AS pool_address,
-        e.parsed_json:amount_in::NUMBER AS amount_in_raw,
-        e.parsed_json:amount_out::NUMBER AS amount_out_raw,
-        NULL AS a_to_b,
-        0 AS fee_amount_raw,
+        -- FlowX uses amount_x/amount_y with x_for_y direction flag
+        IFF(
+            parsed_json:x_for_y::BOOLEAN,
+            parsed_json:amount_x::NUMBER,
+            parsed_json:amount_y::NUMBER
+        ) AS amount_in_raw,
+        IFF(
+            parsed_json:x_for_y::BOOLEAN,
+            parsed_json:amount_y::NUMBER,
+            parsed_json:amount_x::NUMBER
+        ) AS amount_out_raw,
+        e.parsed_json:x_for_y::BOOLEAN AS a_to_b,
+        e.parsed_json:fee_amount::NUMBER AS fee_amount_raw,
         NULL AS partner_address,
-        0 AS referral_amount_raw,
+        NULL AS referral_amount_raw,
         1 AS steps,
-        tx.payload_details:type_arguments[0]::STRING AS token_in_type,
-        tx.payload_details:type_arguments[1]::STRING AS token_out_type,
-        e.tx_sender AS trader_address,
+        -- Token types based on swap direction
+        IFF(
+            e.parsed_json:x_for_y::BOOLEAN,
+            tx.payload_details:type_arguments[0]::STRING,
+            tx.payload_details:type_arguments[1]::STRING
+        ) AS token_in_type,
+        IFF(
+            e.parsed_json:x_for_y::BOOLEAN,
+            tx.payload_details:type_arguments[1]::STRING,
+            tx.payload_details:type_arguments[0]::STRING
+        ) AS token_out_type,
+        e.parsed_json:sender::STRING AS trader_address,
         e.modified_timestamp
     FROM core_events e
     LEFT JOIN fact_transactions tx ON e.tx_digest = tx.tx_digest 
-        AND tx.payload_details:module::STRING = 'flowx'
+        AND tx.payload_details:module::STRING = 'flowx_clmm'
     WHERE e.type = '0x25929e7f29e0a30eb4e692952ba1b5b65a3a4d65ab5f2a32e1ba3edcb587f26d::pool::Swap'
 ),
 
 deepbook_swaps AS (
     SELECT
-        e.checkpoint_number,
-        e.block_timestamp,
-        e.tx_digest,
-        e.event_index,
+        checkpoint_number,
+        block_timestamp,
+        tx_digest,
+        event_index,
         'DeepBook' AS platform,
-        e.event_address AS platform_address,
+        event_address AS platform_address,
         NULL AS pool_address,
-        e.parsed_json:amount_in::NUMBER AS amount_in_raw,
-        e.parsed_json:amount_out::NUMBER AS amount_out_raw,
+        parsed_json:amount_in::NUMBER AS amount_in_raw,
+        parsed_json:amount_out::NUMBER AS amount_out_raw,
         NULL AS a_to_b,
-        0 AS fee_amount_raw,
-        NULL AS partner_address,
-        0 AS referral_amount_raw,
+        parsed_json:fee_amount_protocol::NUMBER AS fee_amount_raw,
+        parsed_json:partner::STRING AS partner_address,
+        parsed_json:fee_amount_partner::NUMBER AS referral_amount_raw,
         1 AS steps,
-        tx.payload_details:type_arguments[0]::STRING AS token_in_type,
-        tx.payload_details:type_arguments[1]::STRING AS token_out_type,
-        e.tx_sender AS trader_address,
-        e.modified_timestamp
-    FROM core_events e
-    LEFT JOIN fact_transactions tx ON e.tx_digest = tx.tx_digest 
-        AND tx.payload_details:module::STRING = 'deepbook'
-    WHERE e.type = '0xe8f996ea6ff38c557c253d3b93cfe2ebf393816487266786371aa4532a9229f2::settle::Swap'
+        parsed_json:coin_in:name::STRING AS token_in_type,
+        parsed_json:coin_out:name::STRING AS token_out_type,
+        parsed_json:sender::STRING AS trader_address,
+        modified_timestamp
+    FROM core_events
+    WHERE type = '0xe8f996ea6ff38c557c253d3b93cfe2ebf393816487266786371aa4532a9229f2::settle::Swap'
 ),
 
 momentum_swaps AS (
@@ -254,19 +269,21 @@ momentum_swaps AS (
         parsed_json:amount_in::NUMBER AS amount_in_raw,
         parsed_json:amount_out::NUMBER AS amount_out_raw,
         parsed_json:a2b::BOOLEAN AS a_to_b,
-        0 AS fee_amount_raw,
+        NULL AS fee_amount_raw,
         NULL AS partner_address,
-        0 AS referral_amount_raw,
+        NULL AS referral_amount_raw,
         1 AS steps,
         -- Token types are in coin_a.name and coin_b.name fields, need 0x prefix for price matching
-        CASE 
-            WHEN parsed_json:a2b::BOOLEAN = TRUE THEN CONCAT('0x', parsed_json:coin_a:name::STRING)
-            ELSE CONCAT('0x', parsed_json:coin_b:name::STRING)
-        END AS token_in_type,
-        CASE 
-            WHEN parsed_json:a2b::BOOLEAN = TRUE THEN CONCAT('0x', parsed_json:coin_b:name::STRING)
-            ELSE CONCAT('0x', parsed_json:coin_a:name::STRING)
-        END AS token_out_type,
+        IFF(
+            parsed_json:a2b::BOOLEAN,
+            parsed_json:coin_a:name::STRING,
+            parsed_json:coin_b:name::STRING
+        ) AS token_in_type,
+        IFF(
+            parsed_json:a2b::BOOLEAN,
+            parsed_json:coin_b:name::STRING,
+            parsed_json:coin_a:name::STRING
+        ) AS token_out_type,
         tx_sender AS trader_address,
         modified_timestamp
     FROM core_events
@@ -275,34 +292,34 @@ momentum_swaps AS (
 
 obric_swaps AS (
     SELECT
-        e.checkpoint_number,
-        e.block_timestamp,
-        e.tx_digest,
-        e.event_index,
+        checkpoint_number,
+        block_timestamp,
+        tx_digest,
+        event_index,
         'OBRIC' AS platform,
-        e.event_address AS platform_address,
-        e.parsed_json:pool_id::STRING AS pool_address,
-        e.parsed_json:amount_in::NUMBER AS amount_in_raw,
-        e.parsed_json:amount_out::NUMBER AS amount_out_raw,
-        e.parsed_json:a2b::BOOLEAN AS a_to_b,
-        0 AS fee_amount_raw,
+        event_address AS platform_address,
+        parsed_json:pool_id::STRING AS pool_address,
+        parsed_json:amount_in::NUMBER AS amount_in_raw,
+        parsed_json:amount_out::NUMBER AS amount_out_raw,
+        parsed_json:a2b::BOOLEAN AS a_to_b,
+        NULL AS fee_amount_raw,
         NULL AS partner_address,
-        0 AS referral_amount_raw,
+        NULL AS referral_amount_raw,
         1 AS steps,
-        CASE 
-            WHEN e.parsed_json:a2b::BOOLEAN = TRUE THEN tx.payload_details:type_arguments[0]::STRING
-            ELSE tx.payload_details:type_arguments[1]::STRING
-        END AS token_in_type,
-        CASE 
-            WHEN e.parsed_json:a2b::BOOLEAN = TRUE THEN tx.payload_details:type_arguments[1]::STRING
-            ELSE tx.payload_details:type_arguments[0]::STRING
-        END AS token_out_type,
+        IFF(
+            parsed_json:a2b::BOOLEAN,
+            parsed_json:coin_a:name::STRING,
+            parsed_json:coin_b:name::STRING
+        ) AS token_in_type,
+        IFF(
+            parsed_json:a2b::BOOLEAN,
+            parsed_json:coin_b:name::STRING,
+            parsed_json:coin_a:name::STRING
+        ) AS token_out_type,
         tx_sender AS trader_address,
-        e.modified_timestamp
-    FROM core_events e
-    LEFT JOIN fact_transactions tx ON e.tx_digest = tx.tx_digest 
-        AND tx.payload_details:module::STRING = 'obric'
-    WHERE e.type = '0x200e762fa2c49f3dc150813038fbf22fd4f894ac6f23ebe1085c62f2ef97f1ca::obric::ObricSwapEvent'
+        modified_timestamp
+    FROM core_events
+    WHERE type = '0x200e762fa2c49f3dc150813038fbf22fd4f894ac6f23ebe1085c62f2ef97f1ca::obric::ObricSwapEvent'
 ),
 
 all_swaps AS (
@@ -341,7 +358,7 @@ SELECT
     token_in_type,
     token_out_type,
     trader_address,
-    {{ dbt_utils.generate_surrogate_key(['tx_digest', 'event_index']) }} AS dex_swaps_id,
+    {{ dbt_utils.generate_surrogate_key(['tx_digest', 'platform_address', 'trader_address', 'token_in_type', 'token_out_type', 'amount_in_raw', 'amount_out_raw']) }} AS dex_swaps_id,
     SYSDATE() AS inserted_timestamp,
     modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
