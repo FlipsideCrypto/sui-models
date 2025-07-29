@@ -8,8 +8,29 @@
     tags = ['silver','defi','non_core']
 ) }}
 
-WITH claims AS (
+{% if execute %}
 
+{% if is_incremental() %}
+{% set min_bd_query %}
+
+SELECT
+    MIN(
+        block_timestamp :: DATE
+    )
+FROM
+    {{ ref('core__fact_events') }}
+WHERE
+    modified_timestamp >= (
+        SELECT
+            MAX(modified_timestamp)
+        FROM
+            {{ this }}
+    ) {% endset %}
+    {% set min_bd = run_query(min_bd_query) [0] [0] %}
+{% endif %}
+{% endif %}
+
+WITH claims AS (
     SELECT
         checkpoint_number,
         block_timestamp,
@@ -18,7 +39,7 @@ WITH claims AS (
         tx_sender,
         parsed_json :message_key :source_chain :: INT AS source_chain,
     FROM
-        sui.core.fact_events {# {{ ref('core__fact_events') }} #}
+        {{ ref('core__fact_events') }}
     WHERE
         tx_succeeded
         AND event_address = '0x000000000000000000000000000000000000000000000000000000000000000b'
@@ -41,12 +62,16 @@ bc AS (
         A.amount,
         A.address_owner
     FROM
-        sui.core.fact_balance_changes {# {{ ref('core__fact_balance_changes') }} #}  A
+        {{ ref('core__fact_balance_changes') }} A
         JOIN claims b
         ON A.tx_digest = b.tx_digest
     WHERE
         A.address_owner <> A.tx_sender
         AND amount > 0
+
+{% if is_incremental() %}
+AND A.block_timestamp :: DATE :: DATE >= '{{ min_bid }}'
+{% endif %}
 )
 SELECT
     A.checkpoint_number,
@@ -57,7 +82,7 @@ SELECT
     A.source_chain,
     0 AS destination_chain,
     bc.amount,
-    NULL AS source_address,
+    NULL :: STRING AS source_address,
     bc.address_owner AS destination_address,
     bc.coin_type,
     '0x000000000000000000000000000000000000000000000000000000000000000b' AS bridge_address,

@@ -1,0 +1,184 @@
+version: 2
+models:
+
+  - name: silver_bridge__sui_bridge_inbound
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: checkpoint_number
+        data_type: NUMBER(18,0)
+      - name: tx_digest
+        data_type: VARCHAR
+      - name: tx_sender
+        data_type: VARCHAR
+      - name: event_index
+        data_type: NUMBER(18,0)
+      - name: source_chain
+        data_type: NUMBER(18,0)
+      - name: destination_chain
+        data_type: NUMBER(18,0)
+      - name: amount
+        data_type: NUMBER(38,0)
+      - name: source_address
+        data_type: VARCHAR
+      - name: destination_address
+        data_type: VARCHAR
+      - name: coin_type
+        data_type: VARCHAR
+      - name: bridge_address
+        data_type: VARCHAR
+      - name: sui_bridge_inbound_id
+        data_type: VARCHAR
+      - name: inserted_timestamp
+        data_type: TIMESTAMP_NTZ
+      - name: modified_timestamp
+        data_type: TIMESTAMP_NTZ
+      - name: block_timestamp
+        data_type: TIMESTAMP_NTZ
+      - name: _invocation_id
+        data_type: TEXT
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          field: block_timestamp
+          interval: 12
+          severity: error
+          tags: ['test_recency']
+
+  - name: silver_bridge__sui_bridge_outbound
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: checkpoint_number
+        data_type: NUMBER(18,0)
+      - name: tx_digest
+        data_type: VARCHAR
+      - name: tx_sender
+        data_type: VARCHAR
+      - name: event_index
+        data_type: NUMBER(18,0)
+      - name: source_chain
+        data_type: NUMBER(18,0)
+      - name: destination_chain
+        data_type: NUMBER(18,0)
+      - name: amount
+        data_type: NUMBER(38,0)
+      - name: source_address
+        data_type: VARCHAR
+      - name: destination_address
+        data_type: VARCHAR
+      - name: coin_type
+        data_type: VARCHAR
+      - name: bridge_address
+        data_type: VARCHAR
+      - name: sui_bridge_outbound_id
+        data_type: VARCHAR
+      - name: inserted_timestamp
+        data_type: TIMESTAMP_NTZ
+      - name: modified_timestamp
+        data_type: TIMESTAMP_NTZ
+      - name: block_timestamp
+        data_type: TIMESTAMP_NTZ
+      - name: _invocation_id
+        data_type: TEXT
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          field: block_timestamp
+          interval: 12
+          severity: error
+          tags: ['test_recency']
+
+  - name: silver_bridge__wormhole_inbound
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: checkpoint_number
+        data_type: NUMBER(18,0)
+      - name: tx_digest
+        data_type: VARCHAR
+      - name: tx_sender
+        data_type: VARCHAR
+      - name: event_index
+        data_type: NUMBER(18,0)
+      - name: source_chain
+        data_type: NUMBER(18,0)
+      - name: destination_chain
+        data_type: NUMBER(18,0)
+      - name: amount
+        data_type: NUMBER(38,0)
+      - name: source_address
+        data_type: VARCHAR
+      - name: destination_address
+        data_type: VARCHAR
+      - name: coin_type
+        data_type: VARCHAR
+      - name: bridge_address
+        data_type: VARCHAR
+      - name: wormhole_inbound_id
+        data_type: VARCHAR
+      - name: inserted_timestamp
+        data_type: TIMESTAMP_NTZ
+      - name: modified_timestamp
+        data_type: TIMESTAMP_NTZ
+      - name: block_timestamp
+        data_type: TIMESTAMP_NTZ
+      - name: _invocation_id
+        data_type: TEXT
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          field: block_timestamp
+          interval: 12
+          severity: error
+          tags: ['test_recency']
+
+  - name: silver_bridge__wormhole_outbound
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: checkpoint_number
+        data_type: NUMBER(18,0)
+      - name: tx_digest
+        data_type: VARCHAR
+      - name: tx_sender
+        data_type: VARCHAR
+      - name: event_index
+        data_type: NUMBER(18,0)
+      - name: source_chain
+        data_type: NUMBER(18,0)
+      - name: destination_chain
+        data_type: NUMBER(18,0)
+      - name: amount
+        data_type: NUMBER(38,0)
+      - name: source_address
+        data_type: VARCHAR
+      - name: destination_address
+        data_type: VARCHAR
+      - name: coin_type
+        data_type: VARCHAR
+      - name: bridge_address
+        data_type: VARCHAR
+      - name: wormhole_outbound_id
+        data_type: VARCHAR
+      - name: inserted_timestamp
+        data_type: TIMESTAMP_NTZ
+      - name: modified_timestamp
+        data_type: TIMESTAMP_NTZ
+      - name: block_timestamp
+        data_type: TIMESTAMP_NTZ
+      - name: _invocation_id
+        data_type: TEXT
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          field: block_timestamp
+          interval: 12
+          severity: error
+          tags: ['test_recency']
+
+

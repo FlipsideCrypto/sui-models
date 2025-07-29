@@ -8,8 +8,29 @@
     tags = ['silver','defi','non_core']
 ) }}
 
-WITH base_events AS (
+{% if execute %}
 
+{% if is_incremental() %}
+{% set min_bd_query %}
+
+SELECT
+    MIN(
+        block_timestamp :: DATE
+    )
+FROM
+    {{ ref('core__fact_events') }}
+WHERE
+    modified_timestamp >= (
+        SELECT
+            MAX(modified_timestamp)
+        FROM
+            {{ this }}
+    ) {% endset %}
+    {% set min_bd = run_query(min_bd_query) [0] [0] %}
+{% endif %}
+{% endif %}
+
+WITH base_events AS (
     SELECT
         checkpoint_number,
         block_timestamp,
@@ -19,20 +40,19 @@ WITH base_events AS (
         parsed_json,
         modified_timestamp
     FROM
-        sui.core.fact_events {# {{ ref('core__fact_events') }} #}
+        {{ ref('core__fact_events') }}
     WHERE
         tx_succeeded
         AND event_address = '0x000000000000000000000000000000000000000000000000000000000000000b'
         AND event_resource = 'TokenDepositedEvent' {# AND block_timestamp :: DATE >= '2025-07-01' #}
 
 {% if is_incremental() %}
-WHERE
-    modified_timestamp >= (
-        SELECT
-            MAX(modified_timestamp)
-        FROM
-            {{ this }}
-    )
+AND modified_timestamp >= (
+    SELECT
+        MAX(modified_timestamp)
+    FROM
+        {{ this }}
+)
 {% endif %}
 ),
 deposits_base AS (
@@ -57,8 +77,8 @@ deposits_base AS (
             ORDER BY
                 s.index
         ) AS sender_address,
-        parsed_json :source_chain :: STRING AS source_chain,
-        parsed_json :target_chain :: STRING AS target_chain,
+        parsed_json :source_chain :: INT AS source_chain,
+        parsed_json :target_chain :: INT AS target_chain,
         parsed_json :token_type :: STRING AS token_type,
         parsed_json :amount :: bigint AS amount,
         parsed_json :seq_num :: INT AS seq_num,
@@ -104,11 +124,16 @@ bc AS (
         b.event_index,
         A.coin_type
     FROM
-        sui.core.fact_balance_changes {# {{ ref('core__fact_balance_changes') }} #}  A
+        {{ ref('core__fact_balance_changes') }} A
         JOIN deposits_base b
         ON A.tx_digest = b.tx_digest
         AND A.address_owner = b.sender_address
         AND - A.amount = b.amount
+
+{% if is_incremental() %}
+WHERE
+    A.block_timestamp :: DATE :: DATE >= '{{ min_bid }}'
+{% endif %}
 )
 SELECT
     A.checkpoint_number,

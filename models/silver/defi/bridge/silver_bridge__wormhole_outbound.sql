@@ -8,8 +8,29 @@
     tags = ['silver','defi','non_core']
 ) }}
 
-WITH wh_mess AS (
+{% if execute %}
 
+{% if is_incremental() %}
+{% set min_bd_query %}
+
+SELECT
+    MIN(
+        block_timestamp :: DATE
+    )
+FROM
+    {{ ref('core__fact_events') }}
+WHERE
+    modified_timestamp >= (
+        SELECT
+            MAX(modified_timestamp)
+        FROM
+            {{ this }}
+    ) {% endset %}
+    {% set min_bd = run_query(min_bd_query) [0] [0] %}
+{% endif %}
+{% endif %}
+
+WITH wh_mess AS (
     SELECT
         checkpoint_number,
         block_timestamp,
@@ -22,7 +43,7 @@ WITH wh_mess AS (
             ELSE FALSE
         END AS is_basic
     FROM
-        sui.core.fact_events {# {{ ref('core__fact_events') }} #}
+        {{ ref('core__fact_events') }}
     WHERE
         tx_succeeded
         AND (
@@ -52,13 +73,17 @@ bc AS (
         A.coin_type,
         A.amount
     FROM
-        sui.core.fact_balance_changes {# {{ ref('core__fact_balance_changes') }} #}  A
+        {{ ref('core__fact_balance_changes') }} A
         JOIN wh_mess b
         ON A.tx_digest = b.tx_digest
         AND A.address_owner = b.tx_sender
     WHERE
         amount < 0
         AND coin_type <> '0x2::sui::SUI'
+
+{% if is_incremental() %}
+AND A.block_timestamp :: DATE :: DATE >= '{{ min_bid }}'
+{% endif %}
 )
 SELECT
     A.checkpoint_number,
@@ -67,7 +92,7 @@ SELECT
     A.tx_sender,
     A.event_index,
     0 AS source_chain,
-    NULL AS destination_chain,
+    NULL :: INT AS destination_chain,
     COALESCE(
         -1 * bc.amount,
         C.parsed_json :amount :: INT
