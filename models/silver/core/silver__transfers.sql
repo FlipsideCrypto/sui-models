@@ -47,7 +47,7 @@ filtered as (
         fbc.tx_sender != coalesce(fbc.address_owner, fbc.object_owner)
         AND NOT (balance_change_index = 0 AND amount < 0) -- remove mints, self-splits, proofs, flash loans
     {% if is_incremental() %}
-        WHERE fbc.modified_timestamp >= (SELECT COALESCE(MAX(modified_timestamp),'1970-01-01') FROM {{ this }})
+        AND fbc.modified_timestamp >= (SELECT COALESCE(MAX(modified_timestamp),'1970-01-01') FROM {{ this }})
     {% endif %}
 )
 SELECT DISTINCT
