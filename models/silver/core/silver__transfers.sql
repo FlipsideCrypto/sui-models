@@ -29,7 +29,7 @@ filtered as (
         fbc.tx_digest,
         fbc.tx_succeeded,
         fbc.tx_sender as sender,
-        fbc.owner as receiver,
+        coalesce(fbc.address_owner, fbc.object_owner) as receiver,
         fbc.balance_change_index,
         fbc.coin_type,
         fbc.amount
@@ -39,8 +39,7 @@ filtered as (
         allowed_tx at 
         ON fbc.tx_digest = at.tx_digest
     WHERE 
-        fbc.tx_sender != fbc.owner
-        AND NOT (balance_change_index = 0 AND amount < 0) -- remove mints, self-splits, proofs, flash loans
+        NOT (balance_change_index = 0 AND amount < 0) -- remove mints, self-splits, proofs, flash loans
     {% if is_incremental() %}
         AND fbc.modified_timestamp >= (SELECT COALESCE(MAX(modified_timestamp),'1970-01-01') FROM {{ this }})
     {% endif %}
