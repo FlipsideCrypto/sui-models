@@ -125,7 +125,6 @@ SELECT
         '0x' || token_out_type
     ) AS token_out_type,
     trader_address,
-    parsed_json,
     {{ dbt_utils.generate_surrogate_key(['tx_digest', 'platform_address', 'trader_address', 'token_in_type', 'token_out_type', 'amount_in_raw', 'amount_out_raw']) }} AS dex_swaps_id,
     SYSDATE() AS inserted_timestamp,
     modified_timestamp,

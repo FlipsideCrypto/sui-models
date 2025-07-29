@@ -6,7 +6,7 @@ models:
     tests:
       - dbt_utils.recency:
           datepart: hour
-          interval: 3
+          interval: 6
           field: block_timestamp
 
     columns:
@@ -30,10 +30,19 @@ models:
         tests:
           - not_null
 
-      - name: PLATFORM
-        description: "{{ doc('platform') }}"
+      - name: TYPE
+        description: "{{ doc('type') }}"
+
+      - name: EVENT_MODULE
+        description: "{{ doc('event_module') }}"
         tests:
           - not_null
+
+      - name: EVENT_RESOURCE
+        description: "{{ doc('event_resource') }}"
+
+      - name: TRANSACTION_MODULE
+        description: "{{ doc('transaction_module') }}"
 
       - name: PLATFORM_ADDRESS
         description: "{{ doc('platform_address') }}"
@@ -65,9 +74,6 @@ models:
 
       - name: PARTNER_ADDRESS
         description: "{{ doc('partner_address') }}"
-
-      - name: REFERRAL_AMOUNT_RAW
-        description: "{{ doc('referral_amount_raw') }}"
 
       - name: STEPS
         description: "{{ doc('steps') }}"
