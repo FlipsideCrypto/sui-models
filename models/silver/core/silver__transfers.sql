@@ -43,6 +43,9 @@ filtered as (
     JOIN
         allowed_tx at 
         ON fbc.tx_digest = at.tx_digest
+    WHERE
+        fbc.tx_sender != fbc.owner
+        AND NOT (balance_change_index = 0 AND amount < 0) -- remove mints, self-splits, proofs, flash loans
     {% if is_incremental() %}
         WHERE fbc.modified_timestamp >= (SELECT COALESCE(MAX(modified_timestamp),'1970-01-01') FROM {{ this }})
     {% endif %}
