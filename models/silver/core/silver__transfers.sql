@@ -28,7 +28,12 @@ filtered as (
         fbc.block_timestamp,
         fbc.tx_digest,
         fbc.tx_succeeded,
-        fbc.tx_sender as sender,
+        case 
+            when fbc.amount < 0 
+            and fbc.address_owner IS NOT NULL 
+            and fbc.address_owner <> fbc.tx_sender 
+            then fbc.address_owner 
+            else fbc.tx_sender end as sender,
         coalesce(fbc.address_owner, fbc.object_owner) as receiver,
         fbc.balance_change_index,
         fbc.coin_type,
@@ -38,10 +43,8 @@ filtered as (
     JOIN
         allowed_tx at 
         ON fbc.tx_digest = at.tx_digest
-    WHERE 
-        NOT (balance_change_index = 0 AND amount < 0) -- remove mints, self-splits, proofs, flash loans
     {% if is_incremental() %}
-        AND fbc.modified_timestamp >= (SELECT COALESCE(MAX(modified_timestamp),'1970-01-01') FROM {{ this }})
+        WHERE fbc.modified_timestamp >= (SELECT COALESCE(MAX(modified_timestamp),'1970-01-01') FROM {{ this }})
     {% endif %}
 )
 SELECT DISTINCT
