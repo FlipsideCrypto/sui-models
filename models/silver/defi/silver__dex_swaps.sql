@@ -35,13 +35,30 @@ WITH core_events AS (
         AND
 {% endif %}
         event_module IN (
-            'cetus',
-            'turbos',
+            'aftermath',
+            'alphafi',
+            'bluemove',
             'bluefin',
+            'cetus',
+            'deepbookv3',
+            'flowx_amm',
             'flowx_clmm',
+            'haedal',
+            'haedalpmm',
+            'kriya_amm',
+            'kriya_clmm',
+            'magma',
+            'metastable',
             'momentum',
             'obric',
-            'magma'
+            'scallop',
+            'sevenk',
+            'steamm_cpmm',
+            'steamm_omm_v2',
+            'steammfe',
+            'suilend',
+            'turbos',
+            'volo'
         )
         -- limit to 30 days for dev
         AND block_timestamp >= sysdate() - interval '30 days'
