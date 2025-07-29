@@ -79,6 +79,7 @@ swaps AS (
         modified_timestamp,
         parsed_json
     FROM core_events
+    WHERE event_resource like '%SwapEvent'
 )
 SELECT
     checkpoint_number,
