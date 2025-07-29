@@ -69,7 +69,7 @@ token_prices_in AS (
     
     -- Join with dim_tokens for token metadata
     LEFT JOIN {{ ref('core__dim_tokens') }} dim_in
-        ON bs.token_in_type = dim_in.coin_type
+        ON lower(bs.token_in_type) = lower(dim_in.coin_type)
     
     -- Standard token address join
     LEFT JOIN crosschain.price.ez_prices_hourly p_in_std 
@@ -119,7 +119,7 @@ with_all_prices AS (
     
     -- Join with dim_tokens for token metadata  
     LEFT JOIN {{ ref('core__dim_tokens') }} dim_out
-        ON tpi.token_out_type = dim_out.coin_type
+        ON lower(tpi.token_out_type) = lower(dim_out.coin_type)
     
     -- Standard token address join
     LEFT JOIN crosschain.price.ez_prices_hourly p_out_std 

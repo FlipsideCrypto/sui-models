@@ -5,7 +5,8 @@
     cluster_by = ['modified_timestamp::DATE','block_timestamp::DATE'],
     incremental_predicates = ["dynamic_range_predicate", "block_timestamp::date"],
     merge_exclude_columns = ["inserted_timestamp"],
-    tags = ['scheduled_non_core']
+    tags = ['scheduled_non_core'],
+    enabled = false
 ) }}
 
 WITH core_events AS (
