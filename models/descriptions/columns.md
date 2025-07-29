@@ -286,6 +286,22 @@ Web URL pointing to the token's icon image. Used for visual representation in wa
 Unique identifier for the token metadata record, linking metadata to on-chain token types. Used for metadata management, registry operations, and analytics joins. Example: 'tokenmeta_123'.
 {% enddocs %}
 
+{% docs address_owner %}
+The 32-byte Sui address (hex with 0x prefix) that owns this object when it has address-based ownership. Address-owned objects are controlled by a specific account and can only be accessed by their owner, providing exclusive control and enabling efficient parallel processing since they don't require consensus. Used for wallet analytics, ownership tracking, and transaction authorization analysis. When null, the object has a different ownership type (shared, immutable, or object-owned). Example: '0xabc123...'.
+{% enddocs %}
+
+{% docs shared_owner %}
+Variant data structure indicating this object has shared ownership, meaning it's accessible to everyone on the network and requires consensus validation for modifications. Shared objects enable coordination between multiple addresses but incur higher transaction costs due to consensus requirements. Used for marketplaces, escrows, AMMs, and other multi-user scenarios. Contains metadata about the shared object's initial version and access permissions. When null, the object has address-based, immutable, or object-based ownership. Example: {"initial_shared_version": 123}.
+{% enddocs %}
+
+{% docs modules %}
+Comma-separated list of Move module names contained within the package. Modules define the package's functionality and can be called by transactions to execute smart contract logic. Each module has a unique name within its package and contains functions, structs, and resources. Used for analyzing package composition, tracking module usage patterns, and understanding smart contract functionality. Example: 'coin,transfer,governance'.
+{% enddocs %}
+
+{% docs amount_normalized %}
+Decimal-adjusted token amount calculated by dividing the raw amount by 10^decimals. Provides human-readable token quantities that can be directly compared across different token types. Essential for financial analysis, balance calculations, and user-facing applications where raw blockchain amounts need to be converted to meaningful values. Example: if amount is 1000000000 and decimals is 9, amount_normalized would be 1.0.
+{% enddocs %}
+
 {% docs token_is_verified %}
 Boolean flag indicating whether the token or price record is verified by Flipside's crosschain curation process. Verified tokens are prioritized for analytics and are considered reliable for most use cases. Unverified tokens may be incomplete, deprecated, or experimental.
 {% enddocs %} 
