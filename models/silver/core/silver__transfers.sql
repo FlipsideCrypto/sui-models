@@ -22,19 +22,39 @@ allowed_tx AS (
         AND modified_timestamp >= (SELECT COALESCE(MAX(modified_timestamp),'1970-01-01') FROM {{ this }})
     {% endif %}
 ),
+-- Identify true mints from balance changes (self-transfers with no positive balance change)
+mint_indicators AS (
+    SELECT 
+        tx_digest,
+        COUNT(*) as total_balance_changes,
+        COUNT(CASE WHEN amount > 0 THEN 1 END) as positive_changes,
+        COUNT(CASE WHEN amount < 0 THEN 1 END) as negative_changes
+    FROM {{ ref('core__fact_balance_changes') }}
+    WHERE tx_succeeded
+    GROUP BY tx_digest
+),
 filtered as (
     SELECT 
         fbc.checkpoint_number,
         fbc.block_timestamp,
         fbc.tx_digest,
         fbc.tx_succeeded,
-        case 
-            when fbc.amount < 0 
-            and fbc.address_owner IS NOT NULL 
-            and fbc.address_owner <> fbc.tx_sender 
-            then fbc.address_owner 
-            else fbc.tx_sender end as sender,
-        coalesce(fbc.address_owner, fbc.object_owner) as receiver,
+        CASE 
+            WHEN fbc.amount < 0 THEN 
+                COALESCE(fbc.address_owner, fbc.object_owner)
+            ELSE 
+                fbc.tx_sender
+        END as sender,
+        CASE 
+            WHEN fbc.amount > 0 THEN 
+                COALESCE(fbc.address_owner, fbc.object_owner)
+            ELSE 
+                CASE 
+                    WHEN COALESCE(fbc.address_owner, fbc.object_owner) != fbc.tx_sender 
+                    THEN fbc.tx_sender
+                    ELSE COALESCE(fbc.address_owner, fbc.object_owner)
+                END
+        END as receiver,
         fbc.balance_change_index,
         fbc.coin_type,
         fbc.amount
@@ -43,10 +63,19 @@ filtered as (
     JOIN
         allowed_tx at 
         ON fbc.tx_digest = at.tx_digest
+    LEFT JOIN
+        mint_indicators mi
+        ON fbc.tx_digest = mi.tx_digest
     WHERE
         fbc.tx_succeeded
-        AND fbc.tx_sender != coalesce(fbc.address_owner, fbc.object_owner)
-        AND NOT (balance_change_index = 0 AND amount < 0) -- remove mints, self-splits, proofs, flash loans
+        AND NOT (
+            fbc.balance_change_index = 0 
+            AND fbc.amount < 0 
+            AND COALESCE(fbc.address_owner, fbc.object_owner) = fbc.tx_sender
+            AND mi.total_balance_changes = 1  -- Only one balance change (self-transfer)
+            AND mi.positive_changes = 0       -- No positive changes
+            AND mi.negative_changes = 1       -- Only negative change
+        )
     {% if is_incremental() %}
         AND fbc.modified_timestamp >= (SELECT COALESCE(MAX(modified_timestamp),'1970-01-01') FROM {{ this }})
     {% endif %}
