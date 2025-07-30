@@ -1,13 +1,13 @@
-name: dbt_run_incremental_core
-run-name: dbt_run_incremental_core
+name: dbt_run_incremental_non_core
+run-name: dbt_run_incremental_non_core
 
 on:
   workflow_dispatch:
     branches:
       - "main"
   schedule:
-    # Run every 4 hours at 15 minutes past the hour
-    - cron: "15 */4 * * *" 
+    # Run every 4 hours at 45 minutes past the hour
+    - cron: "45 */4 * * *" 
       
     
 env:
@@ -45,7 +45,7 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt run -m "sui_models,tag:core"
+          dbt run -m "sui_models,tag:non_core"
 
   notify-failure:
     needs: [run_dbt_jobs]
