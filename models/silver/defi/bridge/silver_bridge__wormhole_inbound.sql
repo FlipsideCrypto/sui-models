@@ -68,7 +68,7 @@ bc AS (
         AND A.address_owner = A.tx_sender
 
 {% if is_incremental() %}
-AND A.block_timestamp :: DATE :: DATE >= '{{ min_bid }}'
+AND A.block_timestamp :: DATE :: DATE >= '{{ min_bd }}'
 {% endif %}
 )
 SELECT

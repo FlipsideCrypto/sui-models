@@ -82,7 +82,7 @@ bc AS (
         AND coin_type <> '0x2::sui::SUI'
 
 {% if is_incremental() %}
-AND A.block_timestamp :: DATE :: DATE >= '{{ min_bid }}'
+AND A.block_timestamp :: DATE :: DATE >= '{{ min_bd }}'
 {% endif %}
 )
 SELECT

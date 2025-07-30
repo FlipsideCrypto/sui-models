@@ -132,7 +132,7 @@ bc AS (
 
 {% if is_incremental() %}
 WHERE
-    A.block_timestamp :: DATE :: DATE >= '{{ min_bid }}'
+    A.block_timestamp :: DATE :: DATE >= '{{ min_bd }}'
 {% endif %}
 )
 SELECT

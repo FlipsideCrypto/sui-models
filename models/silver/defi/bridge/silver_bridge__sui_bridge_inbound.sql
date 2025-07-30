@@ -70,7 +70,7 @@ bc AS (
         AND amount > 0
 
 {% if is_incremental() %}
-AND A.block_timestamp :: DATE :: DATE >= '{{ min_bid }}'
+AND A.block_timestamp :: DATE :: DATE >= '{{ min_bd }}'
 {% endif %}
 )
 SELECT
