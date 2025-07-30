@@ -5,9 +5,7 @@
 
 SELECT
     HOUR,
-    LOWER(
-        p.token_address
-    ) AS token_address,
+    p.token_address,
     asset_id,
     symbol,
     NAME,

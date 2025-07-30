@@ -4,9 +4,7 @@
 ) }}
 
 SELECT
-    LOWER(
-        A.token_address
-    ) AS token_address,
+    A.token_address,
     asset_id,
     symbol,
     NAME,

@@ -14,7 +14,10 @@ SELECT
     NAME,
     decimals,
     blockchain,
-    FALSE AS is_native,
+    CASE
+        WHEN token_address = '0x2::sui::SUI' THEN TRUE
+        ELSE FALSE
+    END AS is_native,
     is_deprecated,
     COALESCE(
         is_verified,
