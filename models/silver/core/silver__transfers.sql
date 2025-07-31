@@ -21,6 +21,11 @@ allowed_tx AS (
     {% if is_incremental() %}
         AND modified_timestamp >= (SELECT COALESCE(MAX(modified_timestamp),'1970-01-01') FROM {{ this }})
     {% endif %}
+     qualify ROW_NUMBER() over (
+        PARTITION BY tx_digest
+        ORDER BY
+            modified_timestamp DESC
+    ) = 1
 ),
 filtered as (
     SELECT 
@@ -28,6 +33,7 @@ filtered as (
         fbc.block_timestamp,
         fbc.tx_digest,
         fbc.tx_succeeded,
+        fbc.tx_sender,
         case 
             when fbc.amount < 0 
             and fbc.address_owner IS NOT NULL 
@@ -51,16 +57,17 @@ filtered as (
         AND fbc.modified_timestamp >= (SELECT COALESCE(MAX(modified_timestamp),'1970-01-01') FROM {{ this }})
     {% endif %}
 )
-SELECT DISTINCT
+SELECT  
     checkpoint_number,
     block_timestamp,
     tx_digest,
     tx_succeeded,
+    tx_sender,
     sender,
     receiver,
     balance_change_index,
     coin_type,
-    amount,
+    amount AS amount_raw,
     {{ dbt_utils.generate_surrogate_key(['tx_digest','balance_change_index']) }} AS transfers_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
