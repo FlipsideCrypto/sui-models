@@ -16,10 +16,22 @@ There is more information on how to use dbt docs in the last section of this doc
 
 **Click on the links below to jump to the documentation for each schema.**
 
-### Core Fact Tables (`sui`.`CORE`.`<table_name>`)
+### Core Tables (`sui`.`CORE`.`<table_name>`)
 - [dim_labels](#!/model/model.sui_models.core__dim_labels)
+- [dim_tokens](#!/model/model.sui_models.core__dim_tokens)
+- [ez_transfers](#!/model/model.sui_models.core__ez_transfers)
+- [fact_balance_changes](#!/model/model.sui_models.core__fact_balance_changes)
+- [fact_changes](#!/model/model.sui_models.core__fact_changes)
+- [fact_checkpoints](#!/model/model.sui_models.core__fact_checkpoints)
+- [fact_events](#!/model/model.sui_models.core__fact_events)
+- [fact_transaction_blocks](#!/model/model.sui_models.core__fact_transaction_blocks)
+- [fact_transaction_inputs](#!/model/model.sui_models.core__fact_transaction_inputs)
+- [fact_transactions](#!/model/model.sui_models.core__fact_transactions)
+- [fact_transfers](#!/model/model.sui_models.core__fact_transfers)
 
-
+### Price Tables (`sui`.`PRICES`.`<table_name>`)
+- [ez_asset_metadata](#!/model/model.sui_models.prices__ez_asset_metadata)
+- [ez_prices_hourly](#!/model/model.sui_models.prices__ez_prices_hourly)
 
 The SUI models are built using three layers of SQL models: **bronze, silver, and gold (or core/defi/nft).**
 
@@ -44,12 +56,11 @@ This view shows relations (tables and views) grouped into database schemas. Note
 
 You can click the blue icon on the bottom-right corner of the page to view the lineage graph of your models.
 
-On model pages, you'll see the immediate parents and children of the model you're exploring. By clicking the Expand butsui at the top-right of this lineage pane, you'll be able to see all of the models that are used to build, or are built from, the model you're exploring.
+On model pages, you'll see the immediate parents and children of the model you're exploring. By clicking the Expand button at the top-right of this lineage pane, you'll be able to see all of the models that are used to build, or are built from, the model you're exploring.
 
 Once expanded, you'll be able to use the ```--models``` and ```--exclude``` model selection syntax to filter the models in the graph. For more information on model selection, check out the [dbt docs](https://docs.getdbt.com/docs/model-selection-syntax).
 
 Note that you can also right-click on models to interactively filter and explore the graph.
-
 
 ### **More information**
 - [Flipside](https://flipsidecrypto.xyz/)
