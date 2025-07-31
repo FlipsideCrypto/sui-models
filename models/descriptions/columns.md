@@ -78,6 +78,10 @@ Fully qualified Move type identifier for coins/tokens. Format: {package}::{modul
 Token quantity in the smallest unit (MIST for SUI). Integer value; 1 SUI = 1,000,000,000 MIST. Used for precise financial calculations, balance tracking, and token flow analysis. Example: 1000000000.
 {% enddocs %}
 
+{% docs amount_raw %}
+Token quantity in the smallest unit (MIST for SUI). Integer value; 1 SUI = 1,000,000,000 MIST. Used for precise financial calculations, balance tracking, and token flow analysis. Example: 1000000000.
+{% enddocs %}
+
 {% docs owner %}
 Ownership information for objects or balances. Enum: Address (user), Shared (requires consensus), Immutable (cannot change). Determines accessibility and is critical for wallet analytics, ownership distribution, and access control studies. Example: 'Address'.
 {% enddocs %}
@@ -432,5 +436,14 @@ Lowest price of the recorded hour in USD
 {% docs prices_close %}
 
 Closing price of the recorded hour in USD
+
+{% enddocs %}
+
+
+{% docs amount_usd %}
+
+USD value of the amount at transaction time.
+
+Example: 1000.50
 
 {% enddocs %}

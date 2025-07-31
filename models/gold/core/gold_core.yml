@@ -690,80 +690,7 @@ models:
       - name: MODIFIED_TIMESTAMP
         description: "Timestamp when this record was last modified."
 
-  - name: core__fact_transfers
-    description: "{{ doc('core__fact_transfers') }}"
-    config:
-      contract:
-        enforced: true
-    columns:
-      - name: CHECKPOINT_NUMBER
-        description: "{{ doc('checkpoint_number') }}"
-        data_type: NUMBER
-        tests:
-          - not_null
-      - name: BLOCK_TIMESTAMP
-        description: "{{ doc('block_timestamp') }}"
-        data_type: TIMESTAMP_NTZ
-        tests:
-          - not_null
-      - name: TX_DIGEST
-        description: "{{ doc('tx_digest') }}"
-        data_type: VARCHAR
-        tests:
-          - not_null
-      - name: TX_SUCCEEDED
-        description: "{{ doc('tx_succeeded') }}"
-        data_type: BOOLEAN
-        tests:
-          - not_null
-      - name: SENDER
-        description: "{{ doc('sender') }}"
-        data_type: VARCHAR
-        tests:
-          - not_null
-      - name: RECEIVER
-        description: "{{ doc('receiver') }}"
-        data_type: VARCHAR
-        tests:
-          - not_null
-      - name: BALANCE_CHANGE_INDEX
-        description: "{{ doc('balance_change_index') }}"
-        data_type: NUMBER
-        tests:
-          - not_null
-      - name: COIN_TYPE
-        description: "{{ doc('coin_type') }}"
-        data_type: VARCHAR
-        tests:
-          - not_null
-      - name: AMOUNT
-        description: "{{ doc('amount') }}"
-        data_type: NUMBER
-        tests:
-          - not_null
-      - name: FACT_TRANSFERS_ID
-        description: "{{ doc('fact_transfers_id') }}"
-        data_type: VARCHAR
-        tests:
-          - not_null
-          - unique
-      - name: INSERTED_TIMESTAMP
-        description: "{{ doc('inserted_timestamp') }}"
-        data_type: TIMESTAMP_NTZ
-        tests:
-          - not_null
-      - name: MODIFIED_TIMESTAMP
-        description: "{{ doc('modified_timestamp') }}"
-        data_type: TIMESTAMP_NTZ
-        tests:
-          - not_null
-    tests:
-      - dbt_utils.recency:
-          datepart: hour
-          field: block_timestamp
-          interval: 12
-          severity: error
-          tags: ['test_recency']
+  
 
   - name: core__ez_transfers
     description: "{{ doc('core__ez_transfers') }}"
@@ -796,6 +723,11 @@ models:
         data_type: BOOLEAN
         tests:
           - not_null
+      - name: TX_SENDER
+        description: "{{ doc('tx_sender') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
       - name: SENDER
         description: "{{ doc('sender') }}"
         data_type: VARCHAR
@@ -814,14 +746,20 @@ models:
       - name: SYMBOL
         description: "{{ doc('symbol') }}"
         data_type: VARCHAR
-      - name: AMOUNT
-        description: "{{ doc('amount') }}"
+      - name: AMOUNT_RAW
+        description: "{{ doc('amount_raw') }}"
         data_type: NUMBER
         tests:
           - not_null
-      - name: AMOUNT_NORMALIZED
+      - name: AMOUNT
         description: "{{ doc('amount_normalized') }}"
         data_type: FLOAT
+      - name: AMOUNT_USD
+        description: "{{ doc('amount_usd') }}"
+        data_type: FLOAT
+      - name: TOKEN_IS_VERIFIED
+        description: "{{ doc('token_is_verified') }}"
+        data_type: BOOLEAN  
       - name: EZ_TRANSFERS_ID
         description: "{{ doc('ez_transfers_id') }}"
         data_type: VARCHAR

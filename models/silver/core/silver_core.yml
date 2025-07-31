@@ -91,6 +91,11 @@ models:
         data_type: BOOLEAN
         tests:
           - not_null
+      - name: TX_SENDER
+        description: "{{ doc('tx_sender') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
       - name: SENDER
         description: "{{ doc('sender') }}"
         data_type: VARCHAR
@@ -111,13 +116,16 @@ models:
         data_type: VARCHAR
         tests:
           - not_null
-      - name: AMOUNT
+      - name: AMOUNT_RAW
         description: "{{ doc('amount') }}"
         data_type: NUMBER
         tests:
           - not_null
       - name: TRANSFERS_ID
         data_type: VARCHAR
+        tests:
+          - not_null
+          - unique
       - name: INSERTED_TIMESTAMP
         description: "{{ doc('inserted_timestamp') }}"
         data_type: TIMESTAMP_NTZ
