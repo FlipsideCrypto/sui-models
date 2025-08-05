@@ -28,12 +28,13 @@ LEFT JOIN (
         coin_type
     FROM
         {{ this }}
-        {# WHERE
+    WHERE
         decimals IS NOT NULL --rerun if decimals is null and inserted_timestamp is within the last 7 days (if the token still doesnt have decimals after 7 day then we will stop trying)
         OR (
             decimals IS NULL
-            AND inserted_timestamp < CURRENT_DATE -7
-        ) #}
+            AND inserted_timestamp > CURRENT_DATE -7
+            AND modified_timestamp :: DATE < CURRENT_DATE -2
+        )
 ) b
 ON A.coin_type = b.coin_type
 WHERE
