@@ -40,6 +40,5 @@ Fact table decomposing every transaction on the Sui blockchain into its constitu
 
 
 {% docs defi__ez_bridge_activity %}
-
-This table provides a comprehensive view of cross-chain bridge activity across the Sui blockchain. It consolidates bridge-related events   to create a unified dataset for analyzing cross-chain asset movements.
+Enhanced fact table providing comprehensive cross-chain bridge analytics by consolidating bridge-related events from multiple protocols (Sui Bridge, Wormhole) into a unified dataset. Each row represents a single cross-chain asset movement event enriched with protocol metadata, token information, and USD pricing. Serves as the primary table for cross-chain DeFi analysis, bridge protocol comparison, and capital flow tracking by normalizing bridge events across different protocols into a consistent format. The table automatically applies decimal precision adjustments and USD conversions, enabling direct comparison of bridge volumes and user activity across different chains and token types. Includes complete transaction context, source/destination chain mapping, and protocol identification to support comprehensive cross-chain analytics, security monitoring, and risk assessment. Essential for DeFi dashboards, bridge protocol analysis, and multi-chain ecosystem studies that require unified cross-chain data and standardized bridge event tracking.
 {% enddocs %}

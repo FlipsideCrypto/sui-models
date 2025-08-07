@@ -54,7 +54,7 @@ SELECT
     source_chain,
     destination_chain,
     source_address AS sender,
-    destination_address AS reciever,
+    destination_address AS receiver,
     coin_type,
     b.symbol AS symbol,
     amount_unadj,
