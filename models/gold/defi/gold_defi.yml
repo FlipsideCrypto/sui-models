@@ -1,0 +1,92 @@
+version: 2
+
+models:
+  - name: defi__ez_bridge_activity
+    description: "{{ doc('defi__ez_bridge_activity') }}"
+    config:
+      contract:
+        enforced: false
+    columns:
+      - name: CHECKPOINT_NUMBER
+        description: "{{ doc('checkpoint_number') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: TX_DIGEST
+        description: "{{ doc('tx_digest') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: TX_SENDER
+        description: "{{ doc('tx_sender') }}"
+        data_type: VARCHAR
+      - name: EVENT_INDEX
+        description: "{{ doc('event_index') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: bridge_address
+        description: "{{ doc('ez_bridge_activity_bridge_address') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: platform
+        description: "{{ doc('ez_bridge_activity_platform') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: protocol
+        description: "{{ doc('ez_bridge_activity_protocol') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: protocol_version
+        description: "{{ doc('ez_bridge_activity_protocol_version') }}"
+        data_type: VARCHAR
+      - name: direction
+        description: "{{ doc('ez_bridge_activity_direction') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: source_chain
+        description: "{{ doc('ez_bridge_activity_source_chain') }}"
+        data_type: VARCHAR
+      - name: destination_chain
+        description: "{{ doc('ez_bridge_activity_destination_chain') }}"
+        data_type: VARCHAR
+      - name: sender
+        description: "{{ doc('ez_bridge_activity_sender') }}"
+        data_type: VARCHAR
+      - name: receiver
+        description: "{{ doc('ez_bridge_activity_receiver') }}"
+        data_type: VARCHAR
+      - name: coin_type
+        description: "{{ doc('coin_type') }}"
+        data_type: VARCHAR
+      - name: symbol
+        description: "{{ doc('symbol') }}"
+        data_type: VARCHAR
+      - name: amount_unadj
+        description: "{{ doc('ez_bridge_activity_amount_unadj') }}"
+        data_type: NUMBER
+      - name: amount
+        description: "{{ doc('ez_bridge_activity_amount') }}"
+        data_type: NUMBER
+      - name: amount_usd
+        description: "{{ doc('ez_bridge_activity_amount_usd') }}"
+        data_type: NUMBER
+      - name: token_is_verified
+        description: "{{ doc('token_is_verified') }}"
+        data_type: BOOLEAN
+      - name: ez_bridge_activity_id
+        description: "{{ doc('ez_bridge_activity_id') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+          - unique
+      

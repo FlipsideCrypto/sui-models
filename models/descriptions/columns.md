@@ -262,6 +262,10 @@ Surrogate key for the transactions fact table. Generated unique identifier by co
 Surrogate key for the tokens dimension table. Generated unique identifier for each token metadata record, typically derived from the coin type or on-chain metadata. Enables efficient token lookups, joins across fact tables, and lineage tracing from raw on-chain data to analytics-ready attributes. In Sui, this is critical for accurate token identification, decimal normalization, and cross-model analytics involving token flows and balances.
 {% enddocs %}
 
+{% docs ez_bridge_activity_id %}
+Surrogate key for the events table. Generated unique identifier combining transaction digest and event index, ensuring each event emission is uniquely addressable. Used as the primary key for event tracking, analytics workflows, and cross-model joins. In Sui, this supports granular dApp analytics, protocol monitoring, and event-driven application logic by enabling precise event referencing and lineage analysis.
+{% enddocs %}
+
 {% docs coin_types_id %}
 Surrogate key for coin types. Generated unique identifier for each coin type, supporting classification, indexing, and efficient joins across analytics queries. In Sui, this enables fast aggregation and filtering by token type, supporting DeFi analytics, token velocity studies, and ecosystem-wide token usage analysis.
 {% enddocs %}
@@ -445,5 +449,129 @@ Closing price of the recorded hour in USD
 USD value of the amount at transaction time.
 
 Example: 1000.50
+
+{% enddocs %}
+
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_platform %}
+
+The protocol or application facilitating the cross-chain bridge transfer.
+
+Example: 'wormhole'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_protocol %}
+
+The protocol or application facilitating the cross-chain bridge transfer.
+
+Example: 'wormhole'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_protocol_version %}
+
+The version of  protocol or application facilitating the cross-chain bridge transfer.
+
+Example: 'v1'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_direction %}
+
+The directions of the cross-chain bridge transfer.
+
+Example: 'inbound'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_sender %}
+
+The Sui address that directly sent tokens to the bridge contract.
+
+Example: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_receiver %}
+
+The address designated to receive tokens on the destination chain (or on the source chain, for intermediate steps).
+
+Example: '0x9876543210987654321098765432109876543210987654321098765432109876'
+
+{% enddocs %}
+
+
+{% docs ez_bridge_activity_destination_chain %}
+
+The target blockchain network for the bridged assets.
+
+Example: 'ethereum'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_source_chain %}
+
+The originating blockchain network for the bridged assets.
+
+Example: 'ethereum'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_bridge_address %}
+
+The Sui object or package address handling the bridge operation.
+
+Example: '0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_coin_type %}
+
+The coin type or token identifier for the asset being bridged on Sui.
+
+Example: '0x2::sui::SUI'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_token_symbol %}
+
+The symbol identifier for the bridged token.
+
+Example: 'SUI'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_amount_unadj %}
+
+The raw token amount without decimal adjustment.
+
+Example: 1000000000
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_amount %}
+
+The decimal-adjusted amount of tokens bridged.
+
+Example: 1.0
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_amount_usd %}
+
+The hourly close USD value of bridged tokens at the time of the transaction.
+
+Example: 1000.50
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_token_is_verified %}
+
+Whether the token is verified by the Flipside team.
+
+Example: true
 
 {% enddocs %}
