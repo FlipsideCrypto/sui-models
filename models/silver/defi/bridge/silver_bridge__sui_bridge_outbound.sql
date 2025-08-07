@@ -134,6 +134,12 @@ bc AS (
 WHERE
     A.block_timestamp :: DATE :: DATE >= '{{ min_bd }}'
 {% endif %}
+
+qualify ROW_NUMBER() over(
+    PARTITION BY A.tx_digest
+    ORDER BY
+        balance_change_index DESC
+) = 1
 )
 SELECT
     A.checkpoint_number,

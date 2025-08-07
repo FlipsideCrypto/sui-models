@@ -37,3 +37,9 @@ Fact table enumerating all inputs consumed by transactions on the Sui blockchain
 {% docs core__fact_transactions %}
 Fact table decomposing every transaction on the Sui blockchain into its constituent commands and payloads. Each row represents a single command (e.g., Move call, transfer, split, merge) within a programmable transaction block, capturing execution order, command type, and argument details. Enables granular analysis of smart contract interactions, dApp usage patterns, and transaction complexity. Supports lineage tracing from high-level user actions to low-level on-chain effects, including Move function calls and resource transfers. Critical for protocol analytics, developer adoption tracking, and understanding composability in the Sui ecosystem.
 {% enddocs %}
+
+
+{% docs defi__ez_bridge_activity %}
+
+This table provides a comprehensive view of cross-chain bridge activity across the Sui blockchain. It consolidates bridge-related events   to create a unified dataset for analyzing cross-chain asset movements.
+{% enddocs %}

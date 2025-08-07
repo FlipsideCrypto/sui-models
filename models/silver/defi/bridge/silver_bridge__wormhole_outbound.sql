@@ -79,11 +79,16 @@ bc AS (
         AND A.address_owner = b.tx_sender
     WHERE
         amount < 0
-        AND coin_type <> '0x2::sui::SUI'
 
 {% if is_incremental() %}
 AND A.block_timestamp :: DATE :: DATE >= '{{ min_bd }}'
 {% endif %}
+
+qualify ROW_NUMBER() over(
+    PARTITION BY A.tx_digest
+    ORDER BY
+        balance_change_index DESC
+) = 1
 )
 SELECT
     A.checkpoint_number,
