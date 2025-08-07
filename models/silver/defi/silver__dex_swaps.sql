@@ -39,15 +39,20 @@ WITH core_events AS (
 {% endif %}
         (
             event_resource ILIKE '%swap%'
+            -- Haedal
+            OR event_resource ILIKE '%buy%'
+            OR event_resource ILIKE '%sell%'
             OR event_resource IN (
                 'Swap',
                 'OrderFilled',
                 'TradeEvent'
             )
         )
+        -- edge cases that are not swaps
         AND event_resource NOT IN (
             'RepayFlashSwapEvent'
         )
+        AND event_resource NOT ILIKE '%bondingcurve%'
 
         -- limit to 30 days for dev
         AND block_timestamp >= sysdate() - interval '30 days'
@@ -107,22 +112,27 @@ swaps AS (
             parsed_json:event:a2b::BOOLEAN
         ) AS a_to_b,
 
-        -- Token In
-        IFF(a_to_b,
-            COALESCE(
-                parsed_json:amount_in::NUMBER,
-                parsed_json:amount_a::NUMBER,
-                parsed_json:amount_x::NUMBER,
-                parsed_json:event:amount_in::NUMBER,
-                parsed_json:coin_in_amount::NUMBER
+        -- Token In - handle different event patterns
+        COALESCE(
+            IFF(a_to_b,
+                COALESCE(
+                    parsed_json:amount_in::NUMBER,
+                    parsed_json:amount_a::NUMBER,
+                    parsed_json:amount_x::NUMBER,
+                    parsed_json:event:amount_in::NUMBER,
+                    parsed_json:coin_in_amount::NUMBER
+                ),
+                COALESCE(
+                    parsed_json:amount_in::NUMBER,
+                    parsed_json:amount_b::NUMBER,
+                    parsed_json:amount_y::NUMBER,
+                    parsed_json:event:amount_in::NUMBER,
+                    parsed_json:coin_in_amount::NUMBER
+                )
             ),
-            COALESCE(
-                parsed_json:amount_in::NUMBER,
-                parsed_json:amount_b::NUMBER,
-                parsed_json:amount_y::NUMBER,
-                parsed_json:event:amount_in::NUMBER,
-                parsed_json:coin_in_amount::NUMBER
-            )
+            -- Haedal-style events
+            parsed_json:pay_quote::NUMBER,
+            parsed_json:pay_base::NUMBER
         ) AS amount_in_raw,
         IFF(a_to_b,
             COALESCE(
@@ -142,22 +152,27 @@ swaps AS (
                 parsed_json:coin_in_type:name::STRING
             )
         ) AS token_in_type,
-        -- Token Out
-        IFF(a_to_b,
-            COALESCE(
-                parsed_json:amount_out::NUMBER,
-                parsed_json:amount_b::NUMBER,
-                parsed_json:amount_y::NUMBER,
-                parsed_json:event:amount_out::NUMBER,
-                parsed_json:coin_out_amount::NUMBER
+        -- Token Out - handle different event patterns
+        COALESCE(
+            IFF(a_to_b,
+                COALESCE(
+                    parsed_json:amount_out::NUMBER,
+                    parsed_json:amount_b::NUMBER,
+                    parsed_json:amount_y::NUMBER,
+                    parsed_json:event:amount_out::NUMBER,
+                    parsed_json:coin_out_amount::NUMBER
+                ),
+                COALESCE(
+                    parsed_json:amount_out::NUMBER,
+                    parsed_json:amount_a::NUMBER,
+                    parsed_json:amount_x::NUMBER,
+                    parsed_json:event:amount_out::NUMBER,
+                    parsed_json:coin_out_amount::NUMBER
+                )
             ),
-            COALESCE(
-                parsed_json:amount_out::NUMBER,
-                parsed_json:amount_a::NUMBER,
-                parsed_json:amount_x::NUMBER,
-                parsed_json:event:amount_out::NUMBER,
-                parsed_json:coin_out_amount::NUMBER
-            )
+            -- Haedal-style events
+            parsed_json:receive_base::NUMBER,
+            parsed_json:receive_quote::NUMBER
         ) AS amount_out_raw,
         IFF(a_to_b,
             COALESCE(
@@ -217,7 +232,12 @@ append_transaction_data AS (
             IFF(a_to_b,
                 t.type_arguments[0] :: STRING,
                 t.type_arguments[1] :: STRING
-            )
+            ),
+            -- For Haedal BuyBaseTokenEvent: paying quote token (index 1)
+            CASE 
+                WHEN s.event_resource = 'BuyBaseTokenEvent' THEN t.type_arguments[1] :: STRING
+                WHEN s.event_resource = 'SellQuoteTokenEvent' THEN t.type_arguments[0] :: STRING
+            END
         ) AS token_in_type,
         s.amount_out_raw,
         COALESCE(
@@ -225,7 +245,12 @@ append_transaction_data AS (
             IFF(a_to_b,
                 t.type_arguments[1] :: STRING,
                 t.type_arguments[0] :: STRING
-            )
+            ),
+            -- For Haedal BuyBaseTokenEvent: receiving base token (index 0)
+            CASE 
+                WHEN s.event_resource = 'BuyBaseTokenEvent' THEN t.type_arguments[0] :: STRING
+                WHEN s.event_resource = 'SellQuoteTokenEvent' THEN t.type_arguments[1] :: STRING
+            END
         ) AS token_out_type,
         s.a_to_b,
         s.fee_amount_raw,
