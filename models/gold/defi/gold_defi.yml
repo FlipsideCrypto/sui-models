@@ -77,7 +77,7 @@ models:
       - name: amount
         description: "{{ doc('ez_bridge_activity_amount') }}"
         data_type: NUMBER
-      - name: mount_usd
+      - name: amount_usd
         description: "{{ doc('ez_bridge_activity_amount_usd') }}"
         data_type: NUMBER
       - name: token_is_verified
