@@ -1,6 +1,6 @@
 {{ config (
     materialized = "incremental",
-    unique_key = ["tx_digest", "event_index"],
+    unique_key = "dex_swaps_id",
     cluster_by = ['modified_timestamp::DATE','block_timestamp::DATE'],
     incremental_predicates = ["dynamic_range_predicate", "block_timestamp::date"],
     merge_exclude_columns = ["inserted_timestamp"],
@@ -14,6 +14,7 @@ WITH base_swaps AS (
         block_timestamp,
         tx_digest,
         event_index,
+        swap_index,
         event_module,
         platform_address,
         pool_address,
@@ -174,6 +175,7 @@ SELECT
     block_timestamp,
     tx_digest,
     event_index,
+    swap_index,
     
     -- Platform information
     platform_address,
