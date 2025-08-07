@@ -62,10 +62,9 @@ SELECT
         '::',
         2
     ) AS event_module,
-    SPLIT_PART(
+    REPLACE(
         TYPE,
-        '::',
-        3
+        event_address || '::' || event_module || '::'
     ) AS event_resource,
     package_id,
     transaction_module,
