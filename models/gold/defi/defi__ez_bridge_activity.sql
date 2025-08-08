@@ -57,10 +57,10 @@ SELECT
         WHEN 10 THEN 'ethereum'
     END AS source_chain,
     CASE
-        asdestination_chain
+        destination_chain
         WHEN 0 THEN 'sui'
         WHEN 10 THEN 'ethereum'
-    END asdestination_chain,
+    END AS destination_chain,
     source_address AS sender,
     destination_address AS receiver,
     coin_type,
