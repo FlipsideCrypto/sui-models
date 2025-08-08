@@ -65,3 +65,73 @@ models:
         data_type: TIMESTAMP_NTZ
       - name: _invocation_id
         data_type: VARCHAR
+
+  - name: silver__transfers
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: CHECKPOINT_NUMBER
+        description: "{{ doc('checkpoint_number') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+        tests:
+          - not_null
+      - name: TX_DIGEST
+        description: "{{ doc('tx_digest') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: TX_SUCCEEDED
+        description: "{{ doc('tx_succeeded') }}"
+        data_type: BOOLEAN
+        tests:
+          - not_null
+      - name: TX_SENDER
+        description: "{{ doc('tx_sender') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: SENDER
+        description: "{{ doc('sender') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: RECEIVER
+        description: "{{ doc('receiver') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: BALANCE_CHANGE_INDEX
+        description: "{{ doc('balance_change_index') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: COIN_TYPE
+        description: "{{ doc('coin_type') }}"
+        data_type: VARCHAR
+        tests:
+          - not_null
+      - name: AMOUNT_RAW
+        description: "{{ doc('amount') }}"
+        data_type: NUMBER
+        tests:
+          - not_null
+      - name: TRANSFERS_ID
+        data_type: VARCHAR
+        tests:
+          - not_null
+          - unique
+      - name: INSERTED_TIMESTAMP
+        description: "{{ doc('inserted_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+      - name: MODIFIED_TIMESTAMP
+        description: "{{ doc('modified_timestamp') }}"
+        data_type: TIMESTAMP_NTZ
+      - name: _INVOCATION_ID
+        data_type: VARCHAR
+

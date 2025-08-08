@@ -3,37 +3,54 @@
     unique_key = "coin_type",
     merge_exclude_columns = ["inserted_timestamp"],
     full_refresh = false,
-    tags = ['silver','core']
+    tags = ['silver']
 ) }}
 
 WITH coins AS (
 
     SELECT
-        coin_type
+        A.coin_type,
+        x
     FROM
-        {{ ref('silver__coin_types') }}
+        (
+            SELECT
+                A.coin_type,
+                COUNT(1) x
+            FROM
+                {{ ref('core__fact_balance_changes') }} A
+            GROUP BY
+                1
+        ) A
 
 {% if is_incremental() %}
-EXCEPT
-SELECT
-    coin_type
-FROM
-    {{ this }}
+LEFT JOIN (
+    SELECT
+        coin_type
+    FROM
+        {{ this }}
+    WHERE
+        decimals IS NOT NULL --rerun if decimals is null and inserted_timestamp is within the last 7 days (if the token still doesnt have decimals after 7 day then we will stop trying)
+        OR (
+            decimals IS NULL
+            AND inserted_timestamp > CURRENT_DATE -7
+            AND modified_timestamp :: DATE < CURRENT_DATE -2
+        )
+) b
+ON A.coin_type = b.coin_type
 WHERE
-    decimals IS NOT NULL --rerun if decimals is null and inserted_timestamp is within the last 7 days (if the token still doesnt have decimals after 7 day then we will stop trying)
-    OR (
-        decimals IS NULL
-        AND inserted_timestamp < CURRENT_DATE -7
-    )
+    b.coin_type IS NULL
 {% endif %}
+ORDER BY
+    x DESC
 LIMIT
-    100
+    10
 ), lq AS (
     SELECT
         coin_type,
         {{ target.database }}.live.udf_api(
             'POST',
-            '{Service}/{Authentication}',
+            {# '{Service}/{Authentication}', #}
+            'https://sui-mainnet-endpoint.blockvision.org/',
             OBJECT_CONSTRUCT(
                 'Content-Type',
                 'application/json',
@@ -51,8 +68,8 @@ LIMIT
                 ARRAY_CONSTRUCT(
                     coin_type
                 )
-            ),
-            'Vault/prod/sui/quicknode/mainnet'
+            ) {# ,
+            'Vault/prod/sui/quicknode/mainnet' #}
         ) :data: "result" AS DATA
     FROM
         coins

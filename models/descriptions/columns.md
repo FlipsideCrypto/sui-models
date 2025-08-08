@@ -78,6 +78,10 @@ Fully qualified Move type identifier for coins/tokens. Format: {package}::{modul
 Token quantity in the smallest unit (MIST for SUI). Integer value; 1 SUI = 1,000,000,000 MIST. Used for precise financial calculations, balance tracking, and token flow analysis. Example: 1000000000.
 {% enddocs %}
 
+{% docs amount_raw %}
+Token quantity in the smallest unit (MIST for SUI). Integer value; 1 SUI = 1,000,000,000 MIST. Used for precise financial calculations, balance tracking, and token flow analysis. Example: 1000000000.
+{% enddocs %}
+
 {% docs owner %}
 Ownership information for objects or balances. Enum: Address (user), Shared (requires consensus), Immutable (cannot change). Determines accessibility and is critical for wallet analytics, ownership distribution, and access control studies. Example: 'Address'.
 {% enddocs %}
@@ -92,6 +96,18 @@ Type/category of object state modification or event. Enum: created, modified, de
 
 {% docs sender %}
 Sui address (32-byte hex) representing the transaction or event sender. Used for authorization, security analysis, and user activity tracking. Example: '0xabc123...'.
+{% enddocs %}
+
+{% docs receiver %}
+Sui address (32-byte hex) representing the transaction or event receiver. Used for tracking destination addresses, transfer flows, and recipient analytics. In transfer contexts, this is the address receiving tokens or assets. Example: '0xdef456...'.
+{% enddocs %}
+
+{% docs ez_transfers_id %}
+Surrogate key for the enhanced transfers table. Generated unique identifier by combining transaction digest and balance change index, ensuring each transfer event enriched with token metadata is uniquely addressable. Used as the primary key for user-friendly transfer analytics, dashboard queries, and cross-model joins. In Sui, this supports transfer analysis with normalized amounts and token symbols, enabling easy identification and comparison of token movements.
+{% enddocs %}
+
+{% docs fact_transfers_id %}
+Surrogate key for the core fact transfers table. Generated unique identifier by combining transaction digest and balance change index, ensuring each transfer event is uniquely addressable. Used as the primary key for transfer tracking, analytics workflows, and cross-model joins. In Sui, this supports precise transfer analysis, portfolio tracking, and compliance reporting by enabling unique identification of each token movement between addresses.
 {% enddocs %}
 
 {% docs digest %}
@@ -246,6 +262,10 @@ Surrogate key for the transactions fact table. Generated unique identifier by co
 Surrogate key for the tokens dimension table. Generated unique identifier for each token metadata record, typically derived from the coin type or on-chain metadata. Enables efficient token lookups, joins across fact tables, and lineage tracing from raw on-chain data to analytics-ready attributes. In Sui, this is critical for accurate token identification, decimal normalization, and cross-model analytics involving token flows and balances.
 {% enddocs %}
 
+{% docs ez_bridge_activity_id %}
+Surrogate key for the events table. Generated unique identifier combining transaction digest and event index, ensuring each event emission is uniquely addressable. Used as the primary key for event tracking, analytics workflows, and cross-model joins. In Sui, this supports granular dApp analytics, protocol monitoring, and event-driven application logic by enabling precise event referencing and lineage analysis.
+{% enddocs %}
+
 {% docs coin_types_id %}
 Surrogate key for coin types. Generated unique identifier for each coin type, supporting classification, indexing, and efficient joins across analytics queries. In Sui, this enables fast aggregation and filtering by token type, supporting DeFi analytics, token velocity studies, and ecosystem-wide token usage analysis.
 {% enddocs %}
@@ -272,4 +292,286 @@ Web URL pointing to the token's icon image. Used for visual representation in wa
 
 {% docs id %}
 Unique identifier for the token metadata record, linking metadata to on-chain token types. Used for metadata management, registry operations, and analytics joins. Example: 'tokenmeta_123'.
+{% enddocs %}
+
+{% docs address_owner %}
+The 32-byte Sui address (hex with 0x prefix) that owns this object when it has address-based ownership. Address-owned objects are controlled by a specific account and can only be accessed by their owner, providing exclusive control and enabling efficient parallel processing since they don't require consensus. Used for wallet analytics, ownership tracking, and transaction authorization analysis. When null, the object has a different ownership type (shared, immutable, or object-owned). Example: '0xabc123...'.
+{% enddocs %}
+
+{% docs shared_owner %}
+Variant data structure indicating this object has shared ownership, meaning it's accessible to everyone on the network and requires consensus validation for modifications. Shared objects enable coordination between multiple addresses but incur higher transaction costs due to consensus requirements. Used for marketplaces, escrows, AMMs, and other multi-user scenarios. Contains metadata about the shared object's initial version and access permissions. When null, the object has address-based, immutable, or object-based ownership. Example: {"initial_shared_version": 123}.
+{% enddocs %}
+
+{% docs modules %}
+Comma-separated list of Move module names contained within the package. Modules define the package's functionality and can be called by transactions to execute smart contract logic. Each module has a unique name within its package and contains functions, structs, and resources. Used for analyzing package composition, tracking module usage patterns, and understanding smart contract functionality. Example: 'coin,transfer,governance'.
+{% enddocs %}
+
+{% docs amount_normalized %}
+Decimal-adjusted token amount calculated by dividing the raw amount by 10^decimals. Provides human-readable token quantities that can be directly compared across different token types. Essential for financial analysis, balance calculations, and user-facing applications where raw blockchain amounts need to be converted to meaningful values. Example: if amount is 1000000000 and decimals is 9, amount_normalized would be 1.0.
+{% enddocs %}
+
+{% docs token_is_verified %}
+Boolean flag indicating whether the token or price record is verified by Flipside's crosschain curation process. Verified tokens are prioritized for analytics and are considered reliable for most use cases. Unverified tokens may be incomplete, deprecated, or experimental.
+{% enddocs %} 
+
+
+
+{% docs prices_ez_asset_metadata_table_doc %}
+
+A convenience table holding prioritized asset metadata and other relevant details pertaining to each token_address and native asset. This data set is highly curated and contains metadata for one unique asset per blockchain.
+
+{% enddocs %}
+
+
+{% docs prices_ez_prices_hourly_table_doc %}
+
+A convenience table for determining token prices by address and blockchain, and native asset prices by symbol and blockchain. This data set is highly curated and contains metadata for one price per hour per unique asset and blockchain.
+
+{% enddocs %}
+
+{% docs prices_provider %}
+
+The provider or source of the data.
+
+{% enddocs %}
+
+{% docs prices_asset_id %}
+
+The unique identifier representing the asset.
+
+{% enddocs %}
+
+{% docs prices_name %}
+
+The name of asset.
+
+{% enddocs %}
+
+{% docs prices_symbol %}
+
+The symbol of asset.
+
+{% enddocs %}
+
+{% docs prices_token_address %}
+
+The specific address representing the asset on a specific platform. This will be NULL if referring to a native asset.
+
+{% enddocs %}
+
+{% docs prices_blockchain %}
+
+The Blockchain, Network, or Platform for this asset.
+
+{% enddocs %}
+
+{% docs prices_blockchain_id %}
+
+The unique identifier of the Blockchain, Network, or Platform for this asset.
+
+{% enddocs %}
+
+{% docs prices_decimals %}
+
+The number of decimals for the asset. May be NULL.
+
+{% enddocs %}
+
+{% docs prices_is_native %}
+
+A flag indicating assets native to the respective blockchain.
+
+{% enddocs %}
+
+{% docs prices_is_deprecated %}
+
+A flag indicating if the asset is deprecated or no longer supported by the provider.
+
+{% enddocs %}
+
+{% docs prices_id_deprecation %}
+
+Deprecating soon! Please use the `asset_id` column instead.
+
+{% enddocs %}
+
+{% docs prices_decimals_deprecation %}
+
+Deprecating soon! Please use the decimals column in `ez_asset_metadata` or join in `dim_contracts` instead.
+
+{% enddocs %}
+
+{% docs prices_hour %}
+
+Hour that the price was recorded at.
+
+{% enddocs %}
+
+{% docs prices_price %}
+
+Closing price of the recorded hour in USD.
+
+{% enddocs %}
+
+{% docs prices_is_imputed %}
+
+A flag indicating if the price was imputed, or derived, from the last arriving record. This is generally used for tokens with low-liquidity or inconsistent reporting.
+
+{% enddocs %}
+
+{% docs prices_open %}
+
+Opening price of the recorded hour in USD.
+
+{% enddocs %}
+
+{% docs prices_high %}
+
+Highest price of the recorded hour in USD
+
+{% enddocs %}
+
+{% docs prices_low %}
+
+Lowest price of the recorded hour in USD
+
+{% enddocs %}
+
+{% docs prices_close %}
+
+Closing price of the recorded hour in USD
+
+{% enddocs %}
+
+
+{% docs amount_usd %}
+
+USD value of the amount at transaction time.
+
+Example: 1000.50
+
+{% enddocs %}
+
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_platform %}
+
+The protocol or application facilitating the cross-chain bridge transfer.
+
+Example: 'wormhole'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_protocol %}
+
+The protocol or application facilitating the cross-chain bridge transfer.
+
+Example: 'wormhole'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_protocol_version %}
+
+The version of  protocol or application facilitating the cross-chain bridge transfer.
+
+Example: 'v1'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_direction %}
+
+The directions of the cross-chain bridge transfer.
+
+Example: 'inbound'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_sender %}
+
+The Sui address that directly sent tokens to the bridge contract.
+
+Example: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_receiver %}
+
+The address designated to receive tokens on the destination chain (or on the source chain, for intermediate steps).
+
+Example: '0x9876543210987654321098765432109876543210987654321098765432109876'
+
+{% enddocs %}
+
+
+{% docs ez_bridge_activity_destination_chain %}
+
+The target blockchain network for the bridged assets.
+
+Example: 'ethereum'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_source_chain %}
+
+The originating blockchain network for the bridged assets.
+
+Example: 'ethereum'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_bridge_address %}
+
+The Sui object or package address handling the bridge operation.
+
+Example: '0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_coin_type %}
+
+The coin type or token identifier for the asset being bridged on Sui.
+
+Example: '0x2::sui::SUI'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_token_symbol %}
+
+The symbol identifier for the bridged token.
+
+Example: 'SUI'
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_amount_unadj %}
+
+The raw token amount without decimal adjustment.
+
+Example: 1000000000
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_amount %}
+
+The decimal-adjusted amount of tokens bridged.
+
+Example: 1.0
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_amount_usd %}
+
+The hourly close USD value of bridged tokens at the time of the transaction.
+
+Example: 1000.50
+
+{% enddocs %}
+
+{% docs ez_bridge_activity_token_is_verified %}
+
+Whether the token is verified by the Flipside team.
+
+Example: true
+
 {% enddocs %}

@@ -1,12 +1,14 @@
-name: dbt_run_streamline_realtime
-run-name: dbt_run_streamline_realtime
+name: dbt_run_incremental_non_core
+run-name: dbt_run_incremental_non_core
 
 on:
   workflow_dispatch:
     branches:
       - "main"
   schedule:
-    - cron: '10 * * * *' # Run every hour at 10 minutes past the hour
+    # Run every 4 hours at 45 minutes past the hour
+    - cron: "45 */4 * * *" 
+      
     
 env:
   DBT_PROFILES_DIR: "${{ vars.DBT_PROFILES_DIR }}"
@@ -43,4 +45,11 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt run -m 2+models/streamline/core/realtime/streamline__checkpoints_realtime.sql --vars '{STREAMLINE_INVOKE_STREAMS: True}'
+          dbt run -m "sui_models,tag:non_core"
+
+  notify-failure:
+    needs: [run_dbt_jobs]
+    if: failure()
+    uses: ./.github/workflows/slack_notify.yml
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}         

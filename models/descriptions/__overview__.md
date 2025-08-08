@@ -33,7 +33,9 @@ There is more information on how to use dbt docs in the last section of this doc
 **Easy Views:**
 - [defi__ez_dex_swaps](#!/model/model.sui_models.defi__ez_dex_swaps)
 
-
+### Price Tables (`sui`.`PRICES`.`<table_name>`)
+- [ez_asset_metadata](#!/model/model.sui_models.prices__ez_asset_metadata)
+- [ez_prices_hourly](#!/model/model.sui_models.prices__ez_prices_hourly)
 
 The SUI models are built using three layers of SQL models: **bronze, silver, and gold (or core/defi/nft).**
 
@@ -58,12 +60,11 @@ This view shows relations (tables and views) grouped into database schemas. Note
 
 You can click the blue icon on the bottom-right corner of the page to view the lineage graph of your models.
 
-On model pages, you'll see the immediate parents and children of the model you're exploring. By clicking the Expand butsui at the top-right of this lineage pane, you'll be able to see all of the models that are used to build, or are built from, the model you're exploring.
+On model pages, you'll see the immediate parents and children of the model you're exploring. By clicking the Expand button at the top-right of this lineage pane, you'll be able to see all of the models that are used to build, or are built from, the model you're exploring.
 
 Once expanded, you'll be able to use the ```--models``` and ```--exclude``` model selection syntax to filter the models in the graph. For more information on model selection, check out the [dbt docs](https://docs.getdbt.com/docs/model-selection-syntax).
 
 Note that you can also right-click on models to interactively filter and explore the graph.
-
 
 ### **More information**
 - [Flipside](https://flipsidecrypto.xyz/)

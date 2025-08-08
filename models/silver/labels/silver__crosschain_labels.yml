@@ -1,0 +1,16 @@
+version: 2
+models:
+  - name: silver__crosschain_labels
+    columns:
+      - name: BLOCKCHAIN
+      - name: ADDRESS
+      - name: CREATOR
+      - name: LABEL_TYPE
+      - name: LABEL_SUBTYPE
+      - name: ADDRESS_NAME
+      - name: PROJECT_NAME
+      - name: _IS_DELETED
+      - name: LABELS_COMBINED_ID
+      - name: INSERTED_TIMESTAMP
+      - name: MODIFIED_TIMESTAMP
+      
