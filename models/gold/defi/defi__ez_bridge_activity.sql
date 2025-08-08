@@ -51,8 +51,16 @@ SELECT
     platform AS protocol,
     'v1' AS protocol_version,
     direction,
-    source_chain,
-    destination_chain,
+    CASE
+        source_chain
+        WHEN 0 THEN 'sui'
+        WHEN 10 THEN 'ethereum'
+    END AS source_chain,
+    CASE
+        asdestination_chain
+        WHEN 0 THEN 'sui'
+        WHEN 10 THEN 'ethereum'
+    END asdestination_chain,
     source_address AS sender,
     destination_address AS receiver,
     coin_type,
