@@ -4,7 +4,7 @@
     cluster_by = ['modified_timestamp::DATE','block_timestamp::DATE'],
     incremental_predicates = ["dynamic_range_predicate", "block_timestamp::date"],
     merge_exclude_columns = ["inserted_timestamp"],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_digest, event_index, trader_address, platform_address);",
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_digest, trader_address, platform_address);",
     tags = ['gold','defi']
 ) }}
 
@@ -28,7 +28,9 @@ WITH base_swaps AS (
         token_out_type,
         trader_address,
         dex_swaps_id,
-        modified_timestamp
+        modified_timestamp,
+        token_in_from_txs, -- TEMP
+        token_out_from_txs -- TEMP
     FROM {{ ref('silver__dex_swaps') }}
     WHERE 1=1
 {% if is_incremental() %}
@@ -37,6 +39,20 @@ WITH base_swaps AS (
             FROM {{ this }}
         )
 {% endif %}
+),
+prices AS (
+    SELECT
+        hour,
+        token_address,
+        symbol,
+        name,
+        decimals,
+        price,
+        blockchain,
+        is_native,
+        token_is_verified
+    FROM
+        {{ ref('price__ez_prices_hourly') }}
 ),
 
 token_prices_in AS (
@@ -72,20 +88,20 @@ token_prices_in AS (
         ON lower(bs.token_in_type) = lower(dim_in.coin_type)
     
     -- Standard token address join
-    LEFT JOIN crosschain.price.ez_prices_hourly p_in_std 
+    LEFT JOIN prices p_in_std 
         ON LOWER(SPLIT(bs.token_in_type, '::')[0]) = LOWER(p_in_std.token_address)
         AND p_in_std.blockchain = 'sui'
         AND p_in_std.hour = DATE_TRUNC('hour', bs.block_timestamp)
         
     -- Native SUI join (for 0x2 addresses)
-    LEFT JOIN crosschain.price.ez_prices_hourly p_in_native
+    LEFT JOIN prices p_in_native
         ON SPLIT(bs.token_in_type, '::')[0] = '0x2'
         AND p_in_native.blockchain = 'sui'
         AND p_in_native.is_native = true
         AND p_in_native.hour = DATE_TRUNC('hour', bs.block_timestamp)
         
     -- Long-form SUI address join (0x2 -> 0x000...002)
-    LEFT JOIN crosschain.price.ez_prices_hourly p_in_long
+    LEFT JOIN prices p_in_long
         ON SPLIT(bs.token_in_type, '::')[0] = '0x2'
         AND p_in_long.token_address = '0x0000000000000000000000000000000000000000000000000000000000000002'
         AND p_in_long.blockchain = 'sui'
@@ -192,6 +208,8 @@ SELECT
     steps,
     
     -- Token information
+    token_in_from_txs, -- TEMP
+    token_out_from_txs, -- TEMP
     token_in_type,
     token_in_address,
     token_in_symbol,
@@ -201,7 +219,7 @@ SELECT
     token_out_symbol,
     token_out_name,
     
-    -- Adjusted amounts (divide by decimals)
+    -- Adjusted amounts
     amount_in_raw / POW(10, token_in_decimals) as amount_in,
     amount_out_raw / POW(10, token_out_decimals) as amount_out,
     CASE 
@@ -250,4 +268,5 @@ SELECT
     modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
     
-FROM with_labels
+FROM
+    with_labels
