@@ -9,6 +9,7 @@
 ) }}
 
 WITH base_swaps AS (
+    -- Union regular DEX swaps with Aftermath DEX swaps
     SELECT
         checkpoint_number,
         block_timestamp,
@@ -32,6 +33,39 @@ WITH base_swaps AS (
         token_in_from_txs, -- TEMP
         token_out_from_txs -- TEMP
     FROM {{ ref('silver__dex_swaps') }}
+    WHERE 1=1
+{% if is_incremental() %}
+        AND modified_timestamp >= (
+            SELECT COALESCE(MAX(modified_timestamp), '1900-01-01'::TIMESTAMP)
+            FROM {{ this }}
+        )
+{% endif %}
+    
+    UNION ALL
+    
+    SELECT
+        checkpoint_number,
+        block_timestamp,
+        tx_digest,
+        event_index,
+        swap_index,
+        event_module,
+        platform_address,
+        pool_address,
+        amount_in_raw,
+        amount_out_raw,
+        a_to_b,
+        fee_amount_raw,
+        partner_address,
+        steps,
+        token_in_type,
+        token_out_type,
+        trader_address,
+        dex_swaps_id,
+        modified_timestamp,
+        token_in_from_txs, -- TEMP
+        token_out_from_txs -- TEMP
+    FROM {{ ref('silver__aftermath_dex_swaps') }}
     WHERE 1=1
 {% if is_incremental() %}
         AND modified_timestamp >= (
