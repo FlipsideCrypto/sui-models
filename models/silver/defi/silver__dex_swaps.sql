@@ -38,6 +38,7 @@ WITH core_events AS (
         AND
 {% endif %}
         (
+            -- primary swap resources for this model
             event_resource ILIKE '%swap%'
             OR event_resource IN (
                 'Swap',
@@ -51,20 +52,26 @@ WITH core_events AS (
             OR event_resource ILIKE '%sell%'
         )
         
+        -- exclude modules that require special handling
         AND event_resource NOT IN (
-            'RepayFlashSwapEvent'
+            'RepayFlashSwapEvent',
+            'ScallopSwapEvent',
+            'OrderFilled',
+            'OrderInfo'
         )
-
-        -- exclude dex modules that require special handling
         AND transaction_module NOT IN (
             'aftermath', 
-            'scallop', 
-            'steamm_cpmm'
+            'scallop'
         )
+        AND transaction_module NOT ILIKE '%steamm%'
+
+        -- exclude limit orders from base model
+        AND event_module NOT IN ('settle')
 
         -- limit to 30 days for dev
         AND block_timestamp >= sysdate() - interval '30 days'
 ),
+
 core_transactions AS (
     SELECT
         tx_digest,
