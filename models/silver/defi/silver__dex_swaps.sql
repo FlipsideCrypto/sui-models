@@ -228,23 +228,65 @@ swaps AS (
 swaps_with_groups AS (
     SELECT
         *,
-        -- Create a composite grouping key that handles null pool_address
+        -- Create base group key
         CASE 
             WHEN pool_address IS NOT NULL THEN
                 CONCAT(pool_address, '|', COALESCE(amount_in_raw::STRING, '0'), '|', COALESCE(amount_out_raw::STRING, '0'))
             ELSE
                 CONCAT(package_id, '|', transaction_module, '|', COALESCE(amount_in_raw::STRING, '0'), '|', COALESCE(amount_out_raw::STRING, '0'))
-        END AS group_key,
-        -- Get the minimum event_index for each group
-        MIN(event_index) OVER (PARTITION BY tx_digest, 
-            CASE 
-                WHEN pool_address IS NOT NULL THEN
-                    CONCAT(pool_address, '|', COALESCE(amount_in_raw::STRING, '0'), '|', COALESCE(amount_out_raw::STRING, '0'))
-                ELSE
-                    CONCAT(package_id, '|', transaction_module, '|', COALESCE(amount_in_raw::STRING, '0'), '|', COALESCE(amount_out_raw::STRING, '0'))
-            END
-        ) AS group_min_event_index
+        END AS base_group_key,
+        
+        -- Find gaps in event_index sequence within the same base group
+        LAG(event_index) OVER (
+            PARTITION BY tx_digest,
+                CASE 
+                    WHEN pool_address IS NOT NULL THEN
+                        CONCAT(pool_address, '|', COALESCE(amount_in_raw::STRING, '0'), '|', COALESCE(amount_out_raw::STRING, '0'))
+                    ELSE
+                        CONCAT(package_id, '|', transaction_module, '|', COALESCE(amount_in_raw::STRING, '0'), '|', COALESCE(amount_out_raw::STRING, '0'))
+                END
+            ORDER BY event_index
+        ) AS prev_event_index
     FROM swaps
+),
+
+swaps_with_gap_detection AS (
+    SELECT
+        *,
+        -- Detect if there's a significant gap (>3) between consecutive events with same base_group_key
+        CASE 
+            WHEN prev_event_index IS NULL THEN 0
+            WHEN (event_index - prev_event_index) > 3 THEN 1
+            ELSE 0
+        END AS is_new_group,
+        
+        -- Create running sum to generate unique group identifiers
+        SUM(
+            CASE 
+                WHEN prev_event_index IS NULL THEN 0
+                WHEN (event_index - prev_event_index) > 3 THEN 1
+                ELSE 0
+            END
+        ) OVER (
+            PARTITION BY tx_digest, base_group_key 
+            ORDER BY event_index 
+            ROWS UNBOUNDED PRECEDING
+        ) AS group_sequence
+    FROM swaps_with_groups
+),
+
+
+swaps_with_final_groups AS (
+    SELECT
+        *,
+        -- Create final group key that includes the sequence number for gap detection
+        CONCAT(base_group_key, '|seq:', group_sequence::STRING) AS final_group_key,
+        
+        -- Get minimum event_index for each final group
+        MIN(event_index) OVER (
+            PARTITION BY tx_digest, CONCAT(base_group_key, '|seq:', group_sequence::STRING)
+        ) AS group_min_event_index
+    FROM swaps_with_gap_detection
 ),
 
 swaps_with_index AS (
@@ -255,7 +297,7 @@ swaps_with_index AS (
             PARTITION BY tx_digest 
             ORDER BY group_min_event_index
         ) as swap_index
-    FROM swaps_with_groups
+    FROM swaps_with_final_groups
 ),
 
 deduplicate_swaps AS (
