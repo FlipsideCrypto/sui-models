@@ -1,0 +1,272 @@
+version: 2
+
+models:
+  - name: silver__aftermath_dex_swaps
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: CHECKPOINT_NUMBER
+        data_type: NUMBER(18,0)
+        description: "{{ doc('checkpoint_number') }}"
+        tests:
+          - not_null
+
+      - name: BLOCK_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('block_timestamp') }}"
+        tests:
+          - not_null
+
+      - name: TX_DIGEST
+        data_type: VARCHAR
+        description: "{{ doc('tx_digest') }}"
+        tests:
+          - not_null
+
+      - name: EVENT_INDEX
+        data_type: NUMBER(18,0)
+        description: "{{ doc('event_index') }}"
+        tests:
+          - not_null
+
+      - name: TYPE
+        data_type: VARCHAR
+        description: "{{ doc('type') }}"
+
+      - name: EVENT_MODULE
+        data_type: VARCHAR
+        description: "{{ doc('event_module') }}"
+        tests:
+          - not_null
+
+      - name: EVENT_RESOURCE
+        data_type: VARCHAR
+        description: "{{ doc('event_resource') }}"
+
+      - name: TRANSACTION_MODULE
+        data_type: VARCHAR
+        description: "{{ doc('transaction_module') }}"
+
+      - name: PLATFORM_ADDRESS
+        data_type: VARCHAR
+        description: "{{ doc('platform_address') }}"
+        tests:
+          - not_null
+
+      - name: POOL_ADDRESS
+        data_type: VARCHAR
+        description: "{{ doc('pool_address') }}"
+
+      - name: AMOUNT_IN_RAW
+        data_type: NUMBER(38,0)
+        description: "{{ doc('amount_in_raw') }}"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: AMOUNT_OUT_RAW
+        data_type: NUMBER(38,0)
+        description: "{{ doc('amount_out_raw') }}"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: A_TO_B
+        data_type: BOOLEAN
+        description: "{{ doc('a_to_b') }}"
+
+      - name: FEE_AMOUNT_RAW
+        data_type: NUMBER(38,0)
+        description: "{{ doc('fee_amount_raw') }}"
+
+      - name: PARTNER_ADDRESS
+        data_type: VARCHAR
+        description: "{{ doc('partner_address') }}"
+
+      - name: STEPS
+        data_type: NUMBER(18,0)
+        description: "{{ doc('steps') }}"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "> 0"
+
+      - name: TOKEN_IN_TYPE
+        data_type: VARCHAR
+        description: "{{ doc('token_in_type') }}"
+        tests:
+          - not_null
+
+      - name: TOKEN_OUT_TYPE
+        data_type: VARCHAR
+        description: "{{ doc('token_out_type') }}"
+        tests:
+          - not_null
+
+      - name: TRADER_ADDRESS
+        data_type: VARCHAR
+        description: "{{ doc('trader_address') }}"
+        tests:
+          - not_null
+
+      - name: DEX_SWAPS_ID
+        data_type: VARCHAR
+        description: "{{ doc('dex_swaps_id') }}"
+        tests:
+          - not_null
+          - unique
+
+      - name: INSERTED_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('inserted_timestamp') }}"
+
+      - name: MODIFIED_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('modified_timestamp') }}"
+
+      - name: _INVOCATION_ID
+        data_type: TEXT
+        description: "{{ doc('_invocation_id') }}"
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          interval: 6
+          field: block_timestamp
+
+  - name: silver__dex_swaps
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: CHECKPOINT_NUMBER
+        data_type: NUMBER(18,0)
+        description: "{{ doc('checkpoint_number') }}"
+        tests:
+          - not_null
+
+      - name: BLOCK_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('block_timestamp') }}"
+        tests:
+          - not_null
+
+      - name: TX_DIGEST
+        data_type: VARCHAR
+        description: "{{ doc('tx_digest') }}"
+        tests:
+          - not_null
+
+      - name: EVENT_INDEX
+        data_type: NUMBER(18,0)
+        description: "{{ doc('event_index') }}"
+        tests:
+          - not_null
+
+      - name: TYPE
+        data_type: VARCHAR
+        description: "{{ doc('type') }}"
+
+      - name: EVENT_MODULE
+        data_type: VARCHAR
+        description: "{{ doc('event_module') }}"
+        tests:
+          - not_null
+
+      - name: EVENT_RESOURCE
+        data_type: VARCHAR
+        description: "{{ doc('event_resource') }}"
+
+      - name: TRANSACTION_MODULE
+        data_type: VARCHAR
+        description: "{{ doc('transaction_module') }}"
+
+      - name: PLATFORM_ADDRESS
+        data_type: VARCHAR
+        description: "{{ doc('platform_address') }}"
+        tests:
+          - not_null
+
+      - name: POOL_ADDRESS
+        data_type: VARCHAR
+        description: "{{ doc('pool_address') }}"
+
+      - name: AMOUNT_IN_RAW
+        data_type: NUMBER(38,0)
+        description: "{{ doc('amount_in_raw') }}"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: AMOUNT_OUT_RAW
+        data_type: NUMBER(38,0)
+        description: "{{ doc('amount_out_raw') }}"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: A_TO_B
+        data_type: BOOLEAN
+        description: "{{ doc('a_to_b') }}"
+
+      - name: FEE_AMOUNT_RAW
+        data_type: NUMBER(38,0)
+        description: "{{ doc('fee_amount_raw') }}"
+
+      - name: PARTNER_ADDRESS
+        data_type: VARCHAR
+        description: "{{ doc('partner_address') }}"
+
+      - name: STEPS
+        data_type: NUMBER(18,0)
+        description: "{{ doc('steps') }}"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "> 0"
+
+      - name: TOKEN_IN_TYPE
+        data_type: VARCHAR
+        description: "{{ doc('token_in_type') }}"
+        tests:
+          - not_null
+
+      - name: TOKEN_OUT_TYPE
+        data_type: VARCHAR
+        description: "{{ doc('token_out_type') }}"
+        tests:
+          - not_null
+
+      - name: TRADER_ADDRESS
+        data_type: VARCHAR
+        description: "{{ doc('trader_address') }}"
+        tests:
+          - not_null
+
+      - name: DEX_SWAPS_ID
+        data_type: VARCHAR
+        description: "{{ doc('dex_swaps_id') }}"
+        tests:
+          - not_null
+          - unique
+
+      - name: INSERTED_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('inserted_timestamp') }}"
+
+      - name: MODIFIED_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('modified_timestamp') }}"
+
+      - name: _INVOCATION_ID
+        data_type: TEXT
+        description: "{{ doc('_invocation_id') }}"
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          interval: 6
+          field: block_timestamp
