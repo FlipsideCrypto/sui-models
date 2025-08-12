@@ -15,8 +15,6 @@ WITH base_swaps AS (
         block_timestamp,
         tx_digest,
         event_index,
-        swap_index,
-        event_module,
         platform_address,
         pool_address,
         amount_in_raw,
@@ -29,9 +27,7 @@ WITH base_swaps AS (
         token_out_type,
         trader_address,
         dex_swaps_id,
-        modified_timestamp,
-        token_in_from_txs, -- TEMP
-        token_out_from_txs -- TEMP
+        modified_timestamp
     FROM {{ ref('silver__dex_swaps') }}
     WHERE 1=1
 {% if is_incremental() %}
@@ -48,8 +44,6 @@ WITH base_swaps AS (
         block_timestamp,
         tx_digest,
         event_index,
-        swap_index,
-        event_module,
         platform_address,
         pool_address,
         amount_in_raw,
@@ -63,8 +57,6 @@ WITH base_swaps AS (
         trader_address,
         dex_swaps_id,
         modified_timestamp,
-        token_in_from_txs, -- TEMP
-        token_out_from_txs -- TEMP
     FROM {{ ref('silver__aftermath_dex_swaps') }}
     WHERE 1=1
 {% if is_incremental() %}
@@ -225,7 +217,6 @@ SELECT
     block_timestamp,
     tx_digest,
     event_index,
-    swap_index,
     
     -- Platform information
     platform_address,
@@ -242,8 +233,6 @@ SELECT
     steps,
     
     -- Token information
-    token_in_from_txs, -- TEMP
-    token_out_from_txs, -- TEMP
     token_in_type,
     token_in_address,
     token_in_symbol,

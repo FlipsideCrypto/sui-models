@@ -39,23 +39,28 @@ WITH core_events AS (
 {% endif %}
         (
             event_resource ILIKE '%swap%'
-            -- Haedal
-            OR event_resource ILIKE '%buy%'
-            OR event_resource ILIKE '%sell%'
             OR event_resource IN (
                 'Swap',
                 'OrderFilled',
-                'TradeEvent'
+                'TradeEvent',
+                'SwapEvent'
             )
+
+            -- Haedal-specific resources
+            OR event_resource ILIKE '%buy%'
+            OR event_resource ILIKE '%sell%'
         )
-        -- edge cases that are not swaps
+        
         AND event_resource NOT IN (
             'RepayFlashSwapEvent'
         )
-        AND event_resource NOT ILIKE '%bondingcurve%'
 
-        -- exclude aftermath module swaps
-        AND transaction_module != 'aftermath'
+        -- exclude dex modules that require special handling
+        AND transaction_module NOT IN (
+            'aftermath', 
+            'scallop', 
+            'steamm_cpmm'
+        )
 
         -- limit to 30 days for dev
         AND block_timestamp >= sysdate() - interval '30 days'
