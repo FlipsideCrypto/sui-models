@@ -91,21 +91,19 @@ token_prices_in AS (
         -- Price data for token_in with SUI native handling
         COALESCE(
             p_in_std.price, 
-            p_in_native.price, 
-            p_in_long.price
+            p_in_native.price
         ) as token_in_price,
         
         -- Decimals prioritizing dim_tokens first, then price data, then default
         COALESCE(
             dim_in.decimals,
             p_in_std.decimals, 
-            p_in_native.decimals, 
-            p_in_long.decimals,
-            9  -- All Sui tokens use 9 decimals (including USDC/USDT on Sui)
+            p_in_native.decimals,
+            9  -- Standard is 9 decimals
         ) as token_in_decimals,
         
-        COALESCE(dim_in.symbol, p_in_std.symbol, p_in_native.symbol, p_in_long.symbol) as token_in_symbol,
-        COALESCE(dim_in.name, p_in_std.name, p_in_native.name, p_in_long.name) as token_in_name
+        COALESCE(dim_in.symbol, p_in_std.symbol, p_in_native.symbol) as token_in_symbol,
+        COALESCE(dim_in.name, p_in_std.name, p_in_native.name) as token_in_name
         
     FROM base_swaps bs
     
@@ -119,19 +117,13 @@ token_prices_in AS (
         AND p_in_std.blockchain = 'sui'
         AND p_in_std.hour = DATE_TRUNC('hour', bs.block_timestamp)
         
-    -- Native SUI join (for 0x2 addresses)
+    -- Native SUI join (for 0x2 and 0x000...002 addresses)
     LEFT JOIN prices p_in_native
-        ON SPLIT(bs.token_in_type, '::')[0] = '0x2'
+        ON (bs.token_in_type = '0x2::sui::SUI' OR bs.token_in_type = '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI')
         AND p_in_native.blockchain = 'sui'
         AND p_in_native.is_native = true
         AND p_in_native.hour = DATE_TRUNC('hour', bs.block_timestamp)
-        
-    -- Long-form SUI address join (0x2 -> 0x000...002)
-    LEFT JOIN prices p_in_long
-        ON SPLIT(bs.token_in_type, '::')[0] = '0x2'
-        AND p_in_long.token_address = '0x0000000000000000000000000000000000000000000000000000000000000002'
-        AND p_in_long.blockchain = 'sui'
-        AND p_in_long.hour = DATE_TRUNC('hour', bs.block_timestamp)
+
 ),
 
 with_all_prices AS (
@@ -141,8 +133,7 @@ with_all_prices AS (
         -- Price data for token_out with SUI native handling
         COALESCE(
             p_out_std.price, 
-            p_out_native.price, 
-            p_out_long.price
+            p_out_native.price
         ) as token_out_price,
         
         -- Decimals prioritizing dim_tokens first, then price data, then default
@@ -150,12 +141,11 @@ with_all_prices AS (
             dim_out.decimals,
             p_out_std.decimals, 
             p_out_native.decimals, 
-            p_out_long.decimals,
-            9  -- All Sui tokens use 9 decimals (including USDC/USDT on Sui)
+            9  -- Standard is 9 decimals
         ) as token_out_decimals,
         
-        COALESCE(dim_out.symbol, p_out_std.symbol, p_out_native.symbol, p_out_long.symbol) as token_out_symbol,
-        COALESCE(dim_out.name, p_out_std.name, p_out_native.name, p_out_long.name) as token_out_name
+        COALESCE(dim_out.symbol, p_out_std.symbol, p_out_native.symbol) as token_out_symbol,
+        COALESCE(dim_out.name, p_out_std.name, p_out_native.name) as token_out_name
         
     FROM token_prices_in tpi
     
@@ -169,19 +159,12 @@ with_all_prices AS (
         AND p_out_std.blockchain = 'sui'
         AND p_out_std.hour = DATE_TRUNC('hour', tpi.block_timestamp)
         
-    -- Native SUI join (for 0x2 addresses)
+    -- Native SUI join (for 0x2 and 0x000...002 addresses)
     LEFT JOIN crosschain.price.ez_prices_hourly p_out_native
-        ON tpi.token_out_address = '0x2'
+        ON (tpi.token_out_type = '0x2::sui::SUI' OR tpi.token_out_type = '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI')
         AND p_out_native.blockchain = 'sui'
         AND p_out_native.is_native = true
         AND p_out_native.hour = DATE_TRUNC('hour', tpi.block_timestamp)
-        
-    -- Long-form SUI address join (0x2 -> 0x000...002)
-    LEFT JOIN crosschain.price.ez_prices_hourly p_out_long
-        ON tpi.token_out_address = '0x2'
-        AND p_out_long.token_address = '0x0000000000000000000000000000000000000000000000000000000000000002'
-        AND p_out_long.blockchain = 'sui'
-        AND p_out_long.hour = DATE_TRUNC('hour', tpi.block_timestamp)
 ),
 
 with_labels AS (
