@@ -575,3 +575,167 @@ Whether the token is verified by the Flipside team.
 Example: true
 
 {% enddocs %}
+
+{% docs platform_address %}
+The smart contract address of the DEX platform that facilitated this swap. This represents the deployed contract address for the specific DEX protocol on the Sui blockchain. Used for contract verification, security analysis, and linking to platform-specific metadata and configurations. Essential for protocol-specific analysis and filtering across different DeFi platforms.
+{% enddocs %}
+
+{% docs pool_address %}
+The address of the liquidity pool involved in the swap. For protocols that use AMM (Automated Market Maker) pools, this identifies the specific pool contract. May be NULL for order book-based protocols like DeepBook or centralized limit order protocols. Essential for pool-specific analytics, liquidity analysis, and understanding which pools are most active for different token pairs.
+{% enddocs %}
+
+{% docs amount_in_raw %}
+The raw amount of tokens being swapped in (input amount) before any decimal adjustments. This represents the exact on-chain token amount as it appears in the swap event. Preserves precision for accurate calculations and is essential for volume analysis, price impact calculations, and swap size distribution analysis. Critical for calculating swap rates and understanding the actual token amounts exchanged in each swap.
+{% enddocs %}
+
+{% docs amount_out_raw %}
+The raw amount of tokens being swapped out (output amount) before any decimal adjustments. This represents the exact on-chain token amount that the user receives from the swap. Critical for calculating swap rates, slippage analysis, and understanding the actual token amounts exchanged in each swap. Essential for volume analysis and swap size distribution analysis.
+{% enddocs %}
+
+{% docs a_to_b %}
+A boolean flag indicating the direction of the swap within the pool. When TRUE, the swap goes from token A to token B; when FALSE, it goes from token B to token A. This field is protocol-specific and may be NULL for some DEX platforms. Important for understanding swap direction and pool token ordering conventions. Follows each protocol's specific pool token ordering conventions.
+{% enddocs %}
+
+{% docs fee_amount_raw %}
+The raw amount of fees charged for the swap transaction. This includes protocol fees, liquidity provider fees, and any other transaction costs. May be 0 for protocols that don't charge explicit fees or when fees are embedded in the swap amounts. Essential for fee revenue analysis and total cost of trading calculations. For some protocols like Aftermath, this may be NULL as fees are handled differently.
+{% enddocs %}
+
+{% docs partner_address %}
+The address of a partner or affiliate that facilitated the swap (if applicable). Used primarily by Cetus for their partner program where swaps can be routed through partner contracts. May be NULL for most protocols or when no partner was involved. Useful for tracking partner performance and affiliate program analytics within the DEX ecosystem.
+{% enddocs %}
+
+{% docs steps %}
+The number of steps or hops required to complete the swap. For simple swaps, this is typically 1. For complex swaps involving multiple pools or routing through multiple protocols, this indicates the number of intermediate steps. Essential for understanding swap complexity and routing efficiency across different protocols. Critical for analyzing multi-hop swaps and routing optimization.
+{% enddocs %}
+
+{% docs token_in_type %}
+The full type identifier of the token being swapped in (input token). This follows Sui's Move type format (e.g., "0x2::sui::SUI" for the native SUI token). Essential for token identification, pricing lookups, and token-specific analytics. Used for calculating USD values and token pair analysis. Some models ensure proper formatting by adding '0x' prefix if missing.
+{% enddocs %}
+
+{% docs token_out_type %}
+The full type identifier of the token being swapped out (output token). This follows Sui's Move type format and represents the token that the user receives from the swap. Critical for token pair analysis, swap rate calculations, and understanding token flow patterns across the DeFi ecosystem. Some models ensure proper formatting by adding '0x' prefix if missing.
+{% enddocs %}
+
+{% docs trader_address %}
+The address of the wallet or account that initiated the swap. May be NULL for some protocols that don't explicitly track the trader address in their events. Essential for user behavior analysis, wallet tracking, and understanding individual trader patterns and preferences across different DEX platforms. For some protocols like Aftermath, this is extracted from the transaction sender.
+{% enddocs %}
+
+{% docs dex_swaps_id %}
+A unique surrogate key generated from the combination of transaction identifiers and swap details. For the general DEX table, this combines tx_digest and event_index. For protocol-specific tables like Aftermath, this may include additional fields like trader_address, token_in_type, token_out_type, amount_in_raw, and amount_out_raw. This provides a stable, unique identifier for each swap event that can be used as a primary key for downstream analytics and data modeling. Ensures data integrity and prevents duplicate processing.
+{% enddocs %}
+
+{% docs platform %}
+The name of the decentralized exchange platform where the swap occurred. Currently supports seven major Sui DEX protocols: Cetus, Turbos, Bluefin, Aftermath AMM, FlowX, DeepBook, and Momentum. This field enables protocol-specific analysis, performance comparison, and market share calculations across different DeFi platforms. Essential for filtering and grouping swap data by protocol.
+{% enddocs %}
+
+{% docs referral_amount_raw %}
+The raw amount of referral rewards or commissions generated from this swap. Used by Cetus for their referral program to track referral program payouts. May be 0 for protocols without referral programs or when no referral was used. Important for referral program analytics and partner performance tracking. Essential for understanding the economic incentives and reward structures within DeFi protocols.
+{% enddocs %}
+
+{% docs _invocation_id %}
+A unique identifier for the dbt run that created or updated this record. This field is used for data lineage tracking and debugging purposes. Helps identify which specific dbt execution was responsible for processing each record and enables traceability back to the source code and configuration used. Essential for ETL monitoring, data quality tracking, and troubleshooting pipeline issues.
+{% enddocs %}
+
+{% docs platform_name %}
+The human-readable name of the DEX platform, derived from address labeling or defaulting to the platform address if no label exists. This field provides user-friendly platform identification for analytics, reporting, and dashboard displays. Examples include "Cetus AMM", "Turbos Finance", "Bluefin", etc. Essential for protocol-specific analysis and cross-platform comparisons.
+{% enddocs %}
+
+{% docs platform_project_name %}
+The project or company name associated with the DEX platform, extracted from address labeling data. This field provides organizational context for the platform, enabling corporate-level analysis and relationship mapping. May be NULL for platforms without established project labels. Useful for understanding platform ownership, partnerships, and ecosystem relationships.
+{% enddocs %}
+
+{% docs pool_name %}
+The human-readable name of the liquidity pool involved in the swap, derived from address labeling or defaulting to the pool address if no label exists. This field provides user-friendly pool identification for analytics and reporting. Examples might include "SUI-USDC Pool", "ETH-USDT Pool", etc. Essential for pool-specific analysis and liquidity concentration studies.
+{% enddocs %}
+
+{% docs pool_project_name %}
+The project or protocol name associated with the liquidity pool, extracted from address labeling data. This field provides organizational context for the pool, enabling analysis of which protocols are providing liquidity for specific token pairs. May be NULL for pools without established project labels. Useful for understanding liquidity provider relationships and protocol partnerships.
+{% enddocs %}
+
+{% docs amount_in %}
+The decimal-adjusted amount of tokens being swapped in (input amount), calculated by dividing the raw amount by the token's decimal places. This field provides human-readable token amounts for analysis and reporting. For example, if amount_in_raw is 1000000000 and token_in_decimals is 9, then amount_in would be 1.0. Essential for user-friendly volume analysis and token flow calculations.
+{% enddocs %}
+
+{% docs amount_out %}
+The decimal-adjusted amount of tokens being swapped out (output amount), calculated by dividing the raw amount by the token's decimal places. This field provides human-readable token amounts for analysis and reporting. For example, if amount_out_raw is 500000000 and token_out_decimals is 6, then amount_out would be 500.0. Critical for calculating swap rates and understanding actual token exchange ratios.
+{% enddocs %}
+
+{% docs fee_amount %}
+The decimal-adjusted amount of fees charged for the swap transaction, calculated by dividing the raw fee amount by the input token's decimal places. This field provides human-readable fee amounts for cost analysis and reporting. May be NULL when no fees are charged or when fee information is not available. Essential for fee revenue analysis and total cost of trading calculations.
+{% enddocs %}
+
+{% docs token_in_address %}
+The extracted token address from the full token type identifier, representing the contract address of the input token. This field is derived by splitting the token_in_type on '::' and taking the first component. For native SUI tokens, this will be '0x2'. Essential for token identification, pricing lookups, and cross-model joins with token metadata tables.
+{% enddocs %}
+
+{% docs token_in_symbol %}
+The trading symbol for the input token, such as 'SUI', 'USDC', 'USDT', etc. This field is populated from token price data and provides user-friendly token identification for analytics and reporting. May be NULL for tokens without established price data. Essential for token pair analysis and trading pattern identification.
+{% enddocs %}
+
+{% docs token_in_name %}
+The full descriptive name of the input token, such as 'Sui Token', 'USD Coin', 'Tether USD', etc. This field is populated from token price data and provides complete token identification for analytics and reporting. May be NULL for tokens without established price data. Useful for comprehensive token analysis and user interface displays.
+{% enddocs %}
+
+{% docs token_out_address %}
+The extracted token address from the full token type identifier, representing the contract address of the output token. This field is derived by splitting the token_out_type on '::' and taking the first component. For native SUI tokens, this will be '0x2'. Essential for token identification, pricing lookups, and cross-model joins with token metadata tables.
+{% enddocs %}
+
+{% docs token_out_symbol %}
+The trading symbol for the output token, such as 'SUI', 'USDC', 'USDT', etc. This field is populated from token price data and provides user-friendly token identification for analytics and reporting. May be NULL for tokens without established price data. Essential for token pair analysis and trading pattern identification.
+{% enddocs %}
+
+{% docs token_out_name %}
+The full descriptive name of the output token, such as 'Sui Token', 'USD Coin', 'Tether USD', etc. This field is populated from token price data and provides complete token identification for analytics and reporting. May be NULL for tokens without established price data. Useful for comprehensive token analysis and user interface displays.
+{% enddocs %}
+
+{% docs token_in_price %}
+The USD price of the input token at the time of the swap, sourced from hourly price data. This field enables USD-denominated volume calculations and financial analysis. May be NULL for tokens without available price data. Essential for calculating amount_in_usd and swap_volume_usd fields.
+{% enddocs %}
+
+{% docs token_out_price %}
+The USD price of the output token at the time of the swap, sourced from hourly price data. This field enables USD-denominated volume calculations and financial analysis. May be NULL for tokens without available price data. Essential for calculating amount_out_usd and swap_volume_usd fields.
+{% enddocs %}
+
+{% docs token_in_decimals %}
+The number of decimal places for the input token, used for converting raw amounts to human-readable values. This field is sourced from token price data or defaults to common values (6 for USDC/USDT, 9 for others). Essential for accurate amount_in calculations and token precision handling.
+{% enddocs %}
+
+{% docs token_out_decimals %}
+The number of decimal places for the output token, used for converting raw amounts to human-readable values. This field is sourced from token price data or defaults to common values (6 for USDC/USDT, 9 for others). Essential for accurate amount_out calculations and token precision handling.
+{% enddocs %}
+
+{% docs amount_in_usd %}
+The USD value of the input token amount, calculated as amount_in * token_in_price. This field provides USD-denominated volume metrics for financial analysis and reporting. May be NULL when token_in_price is not available. Essential for cross-protocol volume comparisons and financial reporting.
+{% enddocs %}
+
+{% docs amount_out_usd %}
+The USD value of the output token amount, calculated as amount_out * token_out_price. This field provides USD-denominated volume metrics for financial analysis and reporting. May be NULL when token_out_price is not available. Essential for cross-protocol volume comparisons and financial reporting.
+{% enddocs %}
+
+{% docs swap_volume_usd %}
+The USD volume of the swap, calculated as the average of amount_in_usd and amount_out_usd when both prices are available, or using whichever price is available when only one is present. This field provides the primary metric for volume analysis and cross-protocol comparisons. May be NULL when no price data is available. Essential for DeFi volume analytics and market analysis.
+{% enddocs %}
+
+{% docs trader_name %}
+The human-readable name of the trader, derived from address labeling or defaulting to the trader address if no label exists. This field provides user-friendly trader identification for analytics and reporting. May include wallet names, exchange addresses, or other labeled entities. Essential for trader behavior analysis and wallet tracking.
+{% enddocs %}
+
+{% docs trader_project_name %}
+The project or organization name associated with the trader address, extracted from address labeling data. This field provides organizational context for the trader, enabling analysis of institutional vs. retail trading patterns. May be NULL for individual traders without established project labels. Useful for understanding trading behavior by entity type.
+{% enddocs %}
+
+{% docs package_index %}
+Zero-based index of the package within a transaction that contains multiple package calls. Used to distinguish between different package invocations in the same transaction. Essential for multi-package transaction analysis and package-level flow tracking. Example: 0 for the first package call, 1 for the second, etc.
+{% enddocs %}
+
+{% docs swap_index %}
+Sequential index of the swap within a transaction that contains multiple swaps. Used to order and identify individual swaps when a transaction performs multiple DEX operations. Essential for multi-swap transaction analysis and swap-level flow tracking. Example: 1 for the first swap, 2 for the second, etc.
+{% enddocs %}
+
+{% docs token_in_from_txs %}
+Boolean flag indicating whether the input token type was derived from transaction payload data rather than event data. True when the token type could not be determined from the event and was inferred from transaction type arguments. Important for data quality assessment and understanding token identification reliability. Example: true when event data was insufficient for token identification.
+{% enddocs %}
+
+{% docs token_out_from_txs %}
+Boolean flag indicating whether the output token type was derived from transaction payload data rather than event data. True when the token type could not be determined from the event and was inferred from transaction type arguments. Important for data quality assessment and understanding token identification reliability. Example: true when event data was insufficient for token identification.
+{% enddocs %}

@@ -42,3 +42,34 @@ Fact table decomposing every transaction on the Sui blockchain into its constitu
 {% docs defi__ez_bridge_activity %}
 Enhanced fact table providing comprehensive cross-chain bridge analytics by consolidating bridge-related events from multiple protocols (Sui Bridge, Wormhole) into a unified dataset. Each row represents a single cross-chain asset movement event enriched with protocol metadata, token information, and USD pricing. Serves as the primary table for cross-chain DeFi analysis, bridge protocol comparison, and capital flow tracking by normalizing bridge events across different protocols into a consistent format. The table automatically applies decimal precision adjustments and USD conversions, enabling direct comparison of bridge volumes and user activity across different chains and token types. Includes complete transaction context, source/destination chain mapping, and protocol identification to support comprehensive cross-chain analytics, security monitoring, and risk assessment. Essential for DeFi dashboards, bridge protocol analysis, and multi-chain ecosystem studies that require unified cross-chain data and standardized bridge event tracking.
 {% enddocs %}
+
+{% docs defi__ez_dex_swaps %}
+## Description
+This table provides a comprehensive view of decentralized exchange (DEX) swap activity across the Sui blockchain ecosystem, enriched with token pricing, metadata, and user labels. It consolidates swap events from seven major DEX protocols (Cetus, Turbos, Bluefin, Aftermath AMM, FlowX, DeepBook, and Momentum) into a standardized format with USD valuations, token metadata, and enhanced labeling. The model transforms raw swap data by adding price information, decimal-adjusted amounts, USD volume calculations, and human-readable labels for platforms, pools, and traders. This enables cross-protocol DeFi analytics, volume comparisons, and comprehensive trading pattern analysis.
+
+## Key Use Cases
+- Cross-protocol DeFi volume analysis and market share comparison
+- Token pair trading volume and liquidity analysis
+- DEX performance benchmarking and protocol adoption tracking
+- Trader behavior analysis and wallet clustering
+- USD-denominated volume metrics and financial reporting
+- Token flow tracking and cross-protocol arbitrage detection
+- Fee revenue analysis and protocol economics modeling
+- Real-time DeFi dashboard development and monitoring
+
+## Important Relationships
+- Sources data from `sui.silver.dex_swaps` for base swap events
+- Enriches with token pricing from `crosschain.price.ez_prices_hourly` for USD calculations
+- Joins with `crosschain.core.dim_labels` for platform, pool, and trader labeling
+- Supports downstream DeFi analytics and cross-protocol dashboards
+- Provides foundation for token flow analysis and market microstructure studies
+
+## Commonly-used Fields
+- `platform` and `platform_name`: Essential for protocol-specific analysis and filtering
+- `amount_in_usd` and `amount_out_usd`: Critical for volume analysis and financial reporting
+- `swap_volume_usd`: Primary field for cross-protocol volume comparisons and market analysis
+- `token_in_symbol` and `token_out_symbol`: Key for token pair analysis and trading pattern identification
+- `block_timestamp`: Primary field for time-series analysis and trend detection
+- `trader_address` and `trader_name`: Essential for wallet tracking and user behavior analysis
+- `pool_address` and `pool_name`: Important for liquidity pool analysis and pool-specific metrics
+{% enddocs %}
