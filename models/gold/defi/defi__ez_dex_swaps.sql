@@ -30,12 +30,15 @@ WITH base_swaps AS (
         dex_swaps_id,
         modified_timestamp
     FROM {{ ref('silver__dex_swaps') }}
+    WHERE 
 {% if is_incremental() %}
-        WHERE modified_timestamp >= (
+    modified_timestamp >= (
             SELECT COALESCE(MAX(modified_timestamp), '1900-01-01'::TIMESTAMP)
             FROM {{ this }}
         )
+        AND
 {% endif %}
+    (not token_in_from_txs and not token_out_from_txs) -- TODO RM THIS, TEMP EXCLUSION 
     
     UNION ALL
     

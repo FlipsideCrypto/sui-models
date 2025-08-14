@@ -110,6 +110,9 @@ core_transactions AS (
         AND
 {% endif %}
     tx_digest IN (SELECT DISTINCT tx_digest FROM core_events)
+    AND typeof(payload_details) != 'ARRAY'
+    AND ARRAY_CONTAINS('type_arguments' :: VARIANT, OBJECT_KEYS(payload_details))
+    AND function NOT ILIKE '%repay%'
 ),
 
 swaps AS (
@@ -359,10 +362,14 @@ append_transaction_data AS (
         s.amount_in_raw,
         COALESCE(
             s.token_in_type,
-            IFF(a_to_b,
-                t.type_arguments[0] :: STRING,
-                t.type_arguments[1] :: STRING
-            ),
+            CASE
+                WHEN t.function LIKE '%a_by_b%' OR t.function = 'swap_exact_input' THEN t.type_arguments[0]::STRING
+                WHEN t.function LIKE '%b_by_a%' THEN t.type_arguments[1]::STRING
+                WHEN t.function LIKE ANY ('%a_to_b%', '%a2b%', '%x_to_y%') THEN t.type_arguments[0]::STRING
+                WHEN t.function LIKE ANY ('%b_to_a%', '%b2a%', '%y_to_x%') THEN t.type_arguments[1]::STRING
+                WHEN s.a_to_b THEN t.type_arguments[0]::STRING
+                ELSE t.type_arguments[1]::STRING
+            END,
             -- For Haedal BuyBaseTokenEvent: paying quote token (index 1)
             CASE 
                 WHEN s.event_resource = 'BuyBaseTokenEvent' THEN t.type_arguments[1] :: STRING
@@ -373,10 +380,14 @@ append_transaction_data AS (
         s.amount_out_raw,
         COALESCE(
             s.token_out_type,
-            IFF(a_to_b,
-                t.type_arguments[1] :: STRING,
-                t.type_arguments[0] :: STRING
-            ),
+            CASE
+                WHEN t.function LIKE '%a_by_b%' OR t.function = 'swap_exact_input' THEN t.type_arguments[1]::STRING
+                WHEN t.function LIKE '%b_by_a%' THEN t.type_arguments[2]::STRING
+                WHEN t.function LIKE ANY ('%a_to_b%', '%a2b%', '%x_to_y%') THEN t.type_arguments[1]::STRING
+                WHEN t.function LIKE ANY ('%b_to_a%', '%b2a%', '%y_to_x%') THEN t.type_arguments[1]::STRING
+                WHEN s.a_to_b THEN t.type_arguments[1]::STRING
+                ELSE t.type_arguments[0]::STRING
+            END,
             -- For Haedal BuyBaseTokenEvent: receiving base token (index 0)
             CASE 
                 WHEN s.event_resource = 'BuyBaseTokenEvent' THEN t.type_arguments[0] :: STRING

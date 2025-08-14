@@ -275,7 +275,7 @@ models:
         description: "{{ doc('package_id') }}"
 
       - name: PACKAGE_INDEX
-        data_type: NUMBER
+        data_type: INTEGER
         description: "{{ doc('package_index') }}"
 
       - name: PARSED_JSON
@@ -287,7 +287,7 @@ models:
         description: "{{ doc('payload_details') }}"
 
       - name: SWAP_INDEX
-        data_type: NUMBER
+        data_type: INTEGER
         description: "{{ doc('swap_index') }}"
 
       - name: TOKEN_IN_FROM_TXS
