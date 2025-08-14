@@ -79,7 +79,7 @@ models:
         description: "{{ doc('a_to_b') }}"
 
       - name: FEE_AMOUNT_RAW
-        data_type: NUMBER(38,0)
+        data_type: TEXT
         description: "{{ doc('fee_amount_raw') }}"
 
       - name: PARTNER_ADDRESS
@@ -126,6 +126,14 @@ models:
       - name: MODIFIED_TIMESTAMP
         data_type: TIMESTAMP_NTZ
         description: "{{ doc('modified_timestamp') }}"
+
+      - name: PACKAGE_ID
+        data_type: TEXT
+        description: "{{ doc('package_id') }}"
+
+      - name: PARSED_JSON
+        data_type: VARIANT
+        description: "{{ doc('parsed_json') }}"
 
       - name: _INVOCATION_ID
         data_type: TEXT
@@ -261,6 +269,34 @@ models:
       - name: MODIFIED_TIMESTAMP
         data_type: TIMESTAMP_NTZ
         description: "{{ doc('modified_timestamp') }}"
+
+      - name: PACKAGE_ID
+        data_type: TEXT
+        description: "{{ doc('package_id') }}"
+
+      - name: PACKAGE_INDEX
+        data_type: NUMBER
+        description: "{{ doc('package_index') }}"
+
+      - name: PARSED_JSON
+        data_type: VARIANT
+        description: "{{ doc('parsed_json') }}"
+
+      - name: PAYLOAD_DETAILS
+        data_type: VARIANT
+        description: "{{ doc('payload_details') }}"
+
+      - name: SWAP_INDEX
+        data_type: NUMBER
+        description: "{{ doc('swap_index') }}"
+
+      - name: TOKEN_IN_FROM_TXS
+        data_type: BOOLEAN
+        description: "{{ doc('token_in_from_txs') }}"
+
+      - name: TOKEN_OUT_FROM_TXS
+        data_type: BOOLEAN
+        description: "{{ doc('token_out_from_txs') }}"
 
       - name: _INVOCATION_ID
         data_type: TEXT

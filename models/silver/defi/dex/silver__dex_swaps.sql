@@ -5,10 +5,30 @@
     cluster_by = ['modified_timestamp::DATE','block_timestamp::DATE'],
     incremental_predicates = ["dynamic_range_predicate", "block_timestamp::date"],
     merge_exclude_columns = ["inserted_timestamp"],
-    tags = ['scheduled_non_core']
+    tags = ['non_core']
 ) }}
 
--- TODO: use front matter IF EXECUTE block to set blockdate for table scans due to ongoing backfill
+{% if execute %}
+
+{% if is_incremental() %}
+{% set min_bd_query %}
+
+SELECT
+    MIN(
+        block_timestamp :: DATE
+    )
+FROM
+    {{ ref('core__fact_events') }}
+WHERE
+    modified_timestamp >= (
+        SELECT
+            MAX(modified_timestamp)
+        FROM
+            {{ this }}
+    ) {% endset %}
+    {% set min_bd = run_query(min_bd_query) [0] [0] %}
+{% endif %}
+{% endif %}
 
 WITH core_events AS (
     SELECT
@@ -38,20 +58,16 @@ WITH core_events AS (
         AND
 {% endif %}
         (
-            -- primary swap resources for this model
-            event_resource ILIKE '%swap%'
+            -- primary swap resources for this model use SwapEvent or PLATFORMSwapEvent
+            -- Haedal-specific resources uses buy and sell
+            event_resource ILIKE ANY ('%swapevent%', '%buy%', '%sell%')
             OR event_resource IN (
                 'Swap',
                 'OrderFilled',
                 'TradeEvent',
                 'SwapEvent'
             )
-
-            -- Haedal-specific resources
-            OR event_resource ILIKE '%buy%'
-            OR event_resource ILIKE '%sell%'
         )
-        
         -- exclude modules that require special handling
         AND event_resource NOT IN (
             'RepayFlashSwapEvent',
@@ -61,15 +77,14 @@ WITH core_events AS (
         )
         AND transaction_module NOT IN (
             'aftermath', 
-            'scallop'
+            'scallop',
+            'fulfill_swap',
+            'slippage'
         )
         AND transaction_module NOT ILIKE '%steamm%'
 
         -- exclude limit orders from base model
         AND event_module NOT IN ('settle')
-
-        -- limit to 30 days for dev
-        AND block_timestamp >= sysdate() - interval '30 days'
 ),
 
 core_transactions AS (
@@ -86,16 +101,15 @@ core_transactions AS (
         {{ ref('core__fact_transactions') }}
     WHERE
 {% if is_incremental() %}
-        modified_timestamp >= (
+        block_timestamp :: DATE >= (
             SELECT
-                COALESCE(MAX(modified_timestamp), '1900-01-01'::TIMESTAMP) AS modified_timestamp
+                COALESCE(MAX(block_timestamp :: DATE), '1900-01-01'::DATE) AS block_timestamp
             FROM
                 {{ this }}
         )
         AND
 {% endif %}
-    date_trunc('day', block_timestamp) >= (SELECT MIN(date_trunc('day', block_timestamp)) FROM core_events)
-    AND tx_digest IN (SELECT DISTINCT tx_digest FROM core_events)
+    tx_digest IN (SELECT DISTINCT tx_digest FROM core_events)
 ),
 
 swaps AS (
@@ -421,14 +435,9 @@ SELECT
     package_index,
     parsed_json, -- TEMP
     payload_details, -- TEMP
-    {{ dbt_utils.generate_surrogate_key(['tx_digest', 'trader_address', 'token_in_type', 'token_out_type', 'amount_in_raw', 'amount_out_raw']) }} AS dex_swaps_id,
+    {{ dbt_utils.generate_surrogate_key(['tx_digest', 'trader_address', 'token_in_type', 'token_out_type', 'amount_in_raw', 'amount_out_raw', 'swap_index']) }} AS dex_swaps_id,
     SYSDATE() AS inserted_timestamp,
     modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
     append_transaction_data
-
--- qualify row_number() over (
---     partition by tx_digest, token_in_type, token_out_type, amount_in_raw, amount_out_raw
---     order by token_in_type IS NOT NULL DESC, token_out_type IS NOT NULL DESC
---     ) = 1

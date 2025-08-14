@@ -1,15 +1,15 @@
 {{ config (
     materialized = "incremental",
-    unique_key = "dex_swaps_id",
-    cluster_by = ['modified_timestamp::DATE','block_timestamp::DATE'],
+    unique_key = "ez_dex_swaps_id",
+    cluster_by = ['block_timestamp::DATE'],
     incremental_predicates = ["dynamic_range_predicate", "block_timestamp::date"],
     merge_exclude_columns = ["inserted_timestamp"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_digest, trader_address, platform_address);",
-    tags = ['gold','defi']
+    tags = ['non_core']
 ) }}
 
 WITH base_swaps AS (
-    -- Union regular DEX swaps with Aftermath DEX swaps
+
     SELECT
         checkpoint_number,
         block_timestamp,
@@ -30,9 +30,8 @@ WITH base_swaps AS (
         dex_swaps_id,
         modified_timestamp
     FROM {{ ref('silver__dex_swaps') }}
-    WHERE 1=1
 {% if is_incremental() %}
-        AND modified_timestamp >= (
+        WHERE modified_timestamp >= (
             SELECT COALESCE(MAX(modified_timestamp), '1900-01-01'::TIMESTAMP)
             FROM {{ this }}
         )
@@ -60,9 +59,8 @@ WITH base_swaps AS (
         dex_swaps_id,
         modified_timestamp,
     FROM {{ ref('silver__aftermath_dex_swaps') }}
-    WHERE 1=1
 {% if is_incremental() %}
-        AND modified_timestamp >= (
+        WHERE modified_timestamp >= (
             SELECT COALESCE(MAX(modified_timestamp), '1900-01-01'::TIMESTAMP)
             FROM {{ this }}
         )
@@ -117,7 +115,8 @@ token_prices_in AS (
     
     -- Standard token address join
     LEFT JOIN prices p_in_std 
-        ON LOWER(SPLIT(bs.token_in_type, '::')[0]) = LOWER(p_in_std.token_address)
+        ON (LOWER(SPLIT(bs.token_in_type, '::')[0]) = LOWER(p_in_std.token_address)
+            OR LOWER(bs.token_in_type) = LOWER(p_in_std.token_address))
         AND p_in_std.blockchain = 'sui'
         AND p_in_std.hour = DATE_TRUNC('hour', bs.block_timestamp)
         
@@ -167,7 +166,8 @@ with_all_prices AS (
     
     -- Standard token address join
     LEFT JOIN crosschain.price.ez_prices_hourly p_out_std 
-        ON LOWER(tpi.token_out_address) = LOWER(p_out_std.token_address)
+        ON (LOWER(tpi.token_out_address) = LOWER(p_out_std.token_address)
+            OR LOWER(tpi.token_out_type) = LOWER(p_out_std.token_address))
         AND p_out_std.blockchain = 'sui'
         AND p_out_std.hour = DATE_TRUNC('hour', tpi.block_timestamp)
         
@@ -288,7 +288,7 @@ SELECT
     trader_address,
     
     -- Metadata
-    dex_swaps_id,
+    dex_swaps_id AS ez_dex_swaps_id,
     SYSDATE() AS inserted_timestamp,
     modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id

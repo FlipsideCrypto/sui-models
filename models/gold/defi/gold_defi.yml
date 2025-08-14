@@ -190,7 +190,7 @@ models:
         description: "{{ doc('trader_address') }}"
         tests:
           - not_null
-      - name: DEX_SWAPS_ID
+      - name: EZ_DEX_SWAPS_ID
         description: "{{ doc('dex_swaps_id') }}"
         tests:
           - not_null

@@ -5,7 +5,7 @@
     cluster_by = ['modified_timestamp::DATE','block_timestamp::DATE'],
     incremental_predicates = ["dynamic_range_predicate", "block_timestamp::date"],
     merge_exclude_columns = ["inserted_timestamp"],
-    tags = ['scheduled_non_core']
+    tags = ['non_core']
 ) }}
 
 WITH core_events AS (
@@ -41,9 +41,6 @@ WITH core_events AS (
                 'SwapEvent',
                 'SwapEventV2'
         )
-        
-        -- limit to 30 days for dev
-        AND block_timestamp >= sysdate() - interval '30 days'
 ),
 
 swaps AS (

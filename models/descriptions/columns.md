@@ -723,3 +723,19 @@ The human-readable name of the trader, derived from address labeling or defaulti
 {% docs trader_project_name %}
 The project or organization name associated with the trader address, extracted from address labeling data. This field provides organizational context for the trader, enabling analysis of institutional vs. retail trading patterns. May be NULL for individual traders without established project labels. Useful for understanding trading behavior by entity type.
 {% enddocs %}
+
+{% docs package_index %}
+Zero-based index of the package within a transaction that contains multiple package calls. Used to distinguish between different package invocations in the same transaction. Essential for multi-package transaction analysis and package-level flow tracking. Example: 0 for the first package call, 1 for the second, etc.
+{% enddocs %}
+
+{% docs swap_index %}
+Sequential index of the swap within a transaction that contains multiple swaps. Used to order and identify individual swaps when a transaction performs multiple DEX operations. Essential for multi-swap transaction analysis and swap-level flow tracking. Example: 1 for the first swap, 2 for the second, etc.
+{% enddocs %}
+
+{% docs token_in_from_txs %}
+Boolean flag indicating whether the input token type was derived from transaction payload data rather than event data. True when the token type could not be determined from the event and was inferred from transaction type arguments. Important for data quality assessment and understanding token identification reliability. Example: true when event data was insufficient for token identification.
+{% enddocs %}
+
+{% docs token_out_from_txs %}
+Boolean flag indicating whether the output token type was derived from transaction payload data rather than event data. True when the token type could not be determined from the event and was inferred from transaction type arguments. Important for data quality assessment and understanding token identification reliability. Example: true when event data was insufficient for token identification.
+{% enddocs %}
