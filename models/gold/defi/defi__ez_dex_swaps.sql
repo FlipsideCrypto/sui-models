@@ -115,8 +115,7 @@ token_prices_in AS (
     
     -- Standard token address join
     LEFT JOIN prices p_in_std 
-        ON (LOWER(SPLIT(bs.token_in_type, '::')[0]) = LOWER(p_in_std.token_address)
-            OR LOWER(bs.token_in_type) = LOWER(p_in_std.token_address))
+        ON LOWER(bs.token_in_type) = LOWER(p_in_std.token_address)
         AND p_in_std.blockchain = 'sui'
         AND p_in_std.hour = DATE_TRUNC('hour', bs.block_timestamp)
         
@@ -166,8 +165,7 @@ with_all_prices AS (
     
     -- Standard token address join
     LEFT JOIN crosschain.price.ez_prices_hourly p_out_std 
-        ON (LOWER(tpi.token_out_address) = LOWER(p_out_std.token_address)
-            OR LOWER(tpi.token_out_type) = LOWER(p_out_std.token_address))
+        ON LOWER(tpi.token_out_type) = LOWER(p_out_std.token_address)
         AND p_out_std.blockchain = 'sui'
         AND p_out_std.hour = DATE_TRUNC('hour', tpi.block_timestamp)
         
