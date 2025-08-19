@@ -62,7 +62,7 @@ SELECT
         10,
         b.decimals
     ) AS amount,
-    (amount / pow(10, b.decimals)) * C.price AS amount_usd,
+    amount * C.price AS amount_usd,
     COALESCE(
         C.token_is_verified,
         FALSE
