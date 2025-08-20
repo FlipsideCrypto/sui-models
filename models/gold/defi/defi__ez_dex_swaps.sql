@@ -38,7 +38,8 @@ WITH base_swaps AS (
         )
         AND
 {% endif %}
-    (not token_in_from_txs and not token_out_from_txs) -- TODO RM THIS, TEMP EXCLUSION 
+    token_in_type IS NOT NULL 
+    AND token_out_type IS NOT NULL
     
     UNION ALL
     
@@ -60,7 +61,7 @@ WITH base_swaps AS (
         token_out_type,
         trader_address,
         dex_swaps_id,
-        modified_timestamp,
+        modified_timestamp
     FROM {{ ref('silver__aftermath_dex_swaps') }}
 {% if is_incremental() %}
         WHERE modified_timestamp >= (

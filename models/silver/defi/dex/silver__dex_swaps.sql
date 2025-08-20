@@ -8,27 +8,6 @@
     tags = ['non_core']
 ) }}
 
-{% if execute %}
-
-{% if is_incremental() %}
-{% set min_bd_query %}
-
-SELECT
-    MIN(
-        block_timestamp :: DATE
-    )
-FROM
-    {{ ref('core__fact_events') }}
-WHERE
-    modified_timestamp >= (
-        SELECT
-            MAX(modified_timestamp)
-        FROM
-            {{ this }}
-    ) {% endset %}
-    {% set min_bd = run_query(min_bd_query) [0] [0] %}
-{% endif %}
-{% endif %}
 
 WITH core_events AS (
     SELECT
@@ -85,34 +64,6 @@ WITH core_events AS (
 
         -- exclude limit orders from base model
         AND event_module NOT IN ('settle')
-),
-
-core_transactions AS (
-    SELECT
-        tx_digest,
-        payload_index,
-        payload_details:function::string as function,
-        payload_details:module::string as module,
-        payload_details:package::string as package,
-        payload_details:type_arguments::ARRAY as type_arguments,
-        payload_details,
-        row_number() over (partition by tx_digest, package, module order by payload_index) as package_index
-    FROM
-        {{ ref('core__fact_transactions') }}
-    WHERE
-{% if is_incremental() %}
-        block_timestamp :: DATE >= (
-            SELECT
-                COALESCE(MAX(block_timestamp :: DATE), '1900-01-01'::DATE) AS block_timestamp
-            FROM
-                {{ this }}
-        )
-        AND
-{% endif %}
-    tx_digest IN (SELECT DISTINCT tx_digest FROM core_events)
-    AND typeof(payload_details) != 'ARRAY'
-    AND ARRAY_CONTAINS('type_arguments' :: VARIANT, OBJECT_KEYS(payload_details))
-    AND function NOT ILIKE '%repay%'
 ),
 
 swaps AS (
@@ -341,75 +292,6 @@ deduplicate_swaps AS (
         partition by tx_digest, swap_index
         order by token_in_type IS NOT NULL DESC, token_out_type IS NOT NULL DESC
     ) = 1
-),
-
-append_transaction_data AS (
-    SELECT
-        s.checkpoint_number,
-        s.block_timestamp,
-        s.tx_digest,
-        s.event_index,
-        s.swap_index,
-        s.type,
-        s.event_module,
-        s.package_id,
-        s.package_index,
-        s.transaction_module,
-        s.event_resource,
-        s.platform_address,
-        s.trader_address,
-        s.pool_address,
-        s.amount_in_raw,
-        COALESCE(
-            s.token_in_type,
-            CASE
-                WHEN t.function LIKE '%a_by_b%' OR t.function = 'swap_exact_input' THEN t.type_arguments[0]::STRING
-                WHEN t.function LIKE '%b_by_a%' THEN t.type_arguments[1]::STRING
-                WHEN t.function LIKE ANY ('%a_to_b%', '%a2b%', '%x_to_y%') THEN t.type_arguments[0]::STRING
-                WHEN t.function LIKE ANY ('%b_to_a%', '%b2a%', '%y_to_x%') THEN t.type_arguments[1]::STRING
-                WHEN s.a_to_b THEN t.type_arguments[0]::STRING
-                ELSE t.type_arguments[1]::STRING
-            END,
-            -- For Haedal BuyBaseTokenEvent: paying quote token (index 1)
-            CASE 
-                WHEN s.event_resource = 'BuyBaseTokenEvent' THEN t.type_arguments[1] :: STRING
-                WHEN s.event_resource = 'SellQuoteTokenEvent' THEN t.type_arguments[0] :: STRING
-            END
-        ) AS token_in_type,
-        s.token_in_type IS NULL AS token_in_from_txs, -- TEMP
-        s.amount_out_raw,
-        COALESCE(
-            s.token_out_type,
-            CASE
-                WHEN t.function LIKE '%a_by_b%' OR t.function = 'swap_exact_input' THEN t.type_arguments[1]::STRING
-                WHEN t.function LIKE '%b_by_a%' THEN t.type_arguments[2]::STRING
-                WHEN t.function LIKE ANY ('%a_to_b%', '%a2b%', '%x_to_y%') THEN t.type_arguments[1]::STRING
-                WHEN t.function LIKE ANY ('%b_to_a%', '%b2a%', '%y_to_x%') THEN t.type_arguments[1]::STRING
-                WHEN s.a_to_b THEN t.type_arguments[1]::STRING
-                ELSE t.type_arguments[0]::STRING
-            END,
-            -- For Haedal BuyBaseTokenEvent: receiving base token (index 0)
-            CASE 
-                WHEN s.event_resource = 'BuyBaseTokenEvent' THEN t.type_arguments[0] :: STRING
-                WHEN s.event_resource = 'SellQuoteTokenEvent' THEN t.type_arguments[1] :: STRING
-            END
-        ) AS token_out_type,
-        s.token_out_type IS NULL AS token_out_from_txs, -- TEMP
-        payload_details, -- TEMP
-        s.a_to_b,
-        s.fee_amount_raw,
-        s.partner_address,
-        s.steps,
-        s.parsed_json,
-        s.modified_timestamp
-    FROM
-        deduplicate_swaps s
-        LEFT JOIN core_transactions t
-            ON s.tx_digest = t.tx_digest
-            AND s.package_id = t.package
-            AND s.transaction_module = t.module
-            AND s.package_index = t.package_index
-            AND (s.token_in_type IS NULL OR s.token_out_type IS NULL)
 )
 SELECT
     checkpoint_number,
@@ -436,19 +318,14 @@ SELECT
         token_out_type,
         '0x' || token_out_type
     ) AS token_out_type,
-    token_in_from_txs, -- TEMP
-    token_out_from_txs, -- TEMP
     a_to_b,
     fee_amount_raw,
     partner_address,
     steps,
     swap_index,
-    package_index,
-    parsed_json, -- TEMP
-    payload_details, -- TEMP
     {{ dbt_utils.generate_surrogate_key(['tx_digest', 'trader_address', 'token_in_type', 'token_out_type', 'amount_in_raw', 'amount_out_raw', 'swap_index']) }} AS dex_swaps_id,
     SYSDATE() AS inserted_timestamp,
     modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
 FROM
-    append_transaction_data
+    deduplicate_swaps

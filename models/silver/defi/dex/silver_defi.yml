@@ -240,14 +240,10 @@ models:
       - name: TOKEN_IN_TYPE
         data_type: VARCHAR
         description: "{{ doc('token_in_type') }}"
-        tests:
-          - not_null
 
       - name: TOKEN_OUT_TYPE
         data_type: VARCHAR
         description: "{{ doc('token_out_type') }}"
-        tests:
-          - not_null
 
       - name: TRADER_ADDRESS
         data_type: VARCHAR
@@ -274,29 +270,9 @@ models:
         data_type: TEXT
         description: "{{ doc('package_id') }}"
 
-      - name: PACKAGE_INDEX
-        data_type: INTEGER
-        description: "{{ doc('package_index') }}"
-
-      - name: PARSED_JSON
-        data_type: VARIANT
-        description: "{{ doc('parsed_json') }}"
-
-      - name: PAYLOAD_DETAILS
-        data_type: VARIANT
-        description: "{{ doc('payload_details') }}"
-
       - name: SWAP_INDEX
         data_type: INTEGER
         description: "{{ doc('swap_index') }}"
-
-      - name: TOKEN_IN_FROM_TXS
-        data_type: BOOLEAN
-        description: "{{ doc('token_in_from_txs') }}"
-
-      - name: TOKEN_OUT_FROM_TXS
-        data_type: BOOLEAN
-        description: "{{ doc('token_out_from_txs') }}"
 
       - name: _INVOCATION_ID
         data_type: TEXT
