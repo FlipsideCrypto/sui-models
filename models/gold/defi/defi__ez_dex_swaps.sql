@@ -158,13 +158,13 @@ with_all_prices AS (
         ON lower(tpi.token_out_type) = lower(dim_out.coin_type)
     
     -- Standard token address join
-    LEFT JOIN crosschain.price.ez_prices_hourly p_out_std 
+    LEFT JOIN prices p_out_std 
         ON LOWER(tpi.token_out_type) = LOWER(p_out_std.token_address)
         AND p_out_std.blockchain = 'sui'
         AND p_out_std.hour = DATE_TRUNC('hour', tpi.block_timestamp)
         
     -- Native SUI join (for 0x2 and 0x000...002 addresses)
-    LEFT JOIN crosschain.price.ez_prices_hourly p_out_native
+    LEFT JOIN prices p_out_native
         ON (tpi.token_out_type = '0x2::sui::SUI' OR tpi.token_out_type = '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI')
         AND p_out_native.blockchain = 'sui'
         AND p_out_native.is_native = true
@@ -177,22 +177,22 @@ with_labels AS (
         
         -- Platform/contract labels
         l_platform.address_name as platform_address_label,
-        l_platform.project_name as platform_project_name,
+        l_platform.label as platform_project_name,
         
         -- Pool labels  
         l_pool.address_name as pool_address_label,
-        l_pool.project_name as pool_project_name
+        l_pool.label as pool_project_name
         
     FROM with_all_prices wap
     
     -- Platform address labels
-    LEFT JOIN crosschain.core.dim_labels l_platform
+    LEFT JOIN {{ ref('core__dim_labels') }} l_platform
         ON LOWER(wap.platform_address) = LOWER(l_platform.address)
         AND l_platform.blockchain = 'sui'
         AND l_platform.label_type IN ('dex', 'defi')
         
     -- Pool address labels
-    LEFT JOIN crosschain.core.dim_labels l_pool
+    LEFT JOIN {{ ref('core__dim_labels') }} l_pool
         ON LOWER(wap.pool_address) = LOWER(l_pool.address)
         AND l_pool.blockchain = 'sui'
         AND l_pool.label_subtype = 'pool'

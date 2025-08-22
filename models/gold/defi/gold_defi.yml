@@ -1,9 +1,6 @@
 version: 2
 
 models:
-version: 2
-
-models:
   - name: defi__ez_bridge_activity
     description: "{{ doc('defi__ez_bridge_activity') }}"
     config:
