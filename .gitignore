@@ -20,7 +20,11 @@ package-lock.yml
 .DS_Store
 .user.yml
 
-.claude/log/*
-.claude/settings.local.json
+# Cursor configuration
+.cursor/*
+!.cursor/rules
 
-.cursor/mcp.json
+# Local Claude configuration
+.claude/settings.local.json
+.claude/log
+CLAUDE.local.md
