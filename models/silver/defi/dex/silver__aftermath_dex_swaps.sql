@@ -117,7 +117,7 @@ SELECT
     partner_address,
     steps,
     parsed_json,
-    {{ dbt_utils.generate_surrogate_key(['tx_digest', 'trader_address', 'token_in_type', 'token_out_type', 'amount_in_raw', 'amount_out_raw']) }} AS dex_swaps_id,
+    {{ dbt_utils.generate_surrogate_key(['tx_digest', 'event_index', 'trader_address', 'token_in_type', 'token_out_type', 'amount_in_raw', 'amount_out_raw']) }} AS dex_swaps_id,
     SYSDATE() AS inserted_timestamp,
     modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id
