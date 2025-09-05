@@ -1,0 +1,623 @@
+version: 2
+
+models:
+  - name: silver_lending__suilend_borrows
+    description: "{{ doc('silver_lending__suilend_borrows') }}"
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: CHECKPOINT_NUMBER
+        data_type: NUMBER(18,0)
+        description: "{{ doc('checkpoint_number') }}"
+        tests:
+          - not_null
+
+      - name: BLOCK_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('block_timestamp') }}"
+        tests:
+          - not_null
+
+      - name: TX_DIGEST
+        data_type: VARCHAR
+        description: "{{ doc('tx_digest') }}"
+        tests:
+          - not_null
+
+      - name: TX_SENDER
+        data_type: VARCHAR
+        description: "{{ doc('tx_sender') }}"
+        tests:
+          - not_null
+
+      - name: EVENT_INDEX
+        data_type: NUMBER(18,0)
+        description: "{{ doc('event_index') }}"
+        tests:
+          - not_null
+
+      - name: TYPE
+        data_type: VARCHAR
+        description: "{{ doc('type') }}"
+
+      - name: EVENT_MODULE
+        data_type: VARCHAR
+        description: "{{ doc('event_module') }}"
+        tests:
+          - not_null
+
+      - name: EVENT_RESOURCE
+        data_type: VARCHAR
+        description: "{{ doc('event_resource') }}"
+
+      - name: PACKAGE_ID
+        data_type: VARCHAR
+        description: "{{ doc('package_id') }}"
+        tests:
+          - not_null
+
+      - name: TRANSACTION_MODULE
+        data_type: VARCHAR
+        description: "{{ doc('transaction_module') }}"
+
+      - name: COIN_TYPE
+        data_type: VARCHAR
+        description: "{{ doc('coin_type') }}"
+        tests:
+          - not_null
+
+      - name: LENDING_MARKET_ID
+        data_type: VARCHAR
+        description: "{{ doc('lending_market_id') }}"
+        tests:
+          - not_null
+
+      - name: LIQUIDITY_AMOUNT
+        data_type: NUMBER(38,0)
+        description: "{{ doc('liquidity_amount') }}"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "> 0"
+
+      - name: OBLIGATION_ID
+        data_type: VARCHAR
+        description: "{{ doc('obligation_id') }}"
+        tests:
+          - not_null
+
+      - name: ORIGINATION_FEE_AMOUNT
+        data_type: NUMBER(38,0)
+        description: "{{ doc('origination_fee_amount') }}"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: RESERVE_ID
+        data_type: VARCHAR
+        description: "{{ doc('reserve_id') }}"
+        tests:
+          - not_null
+
+      - name: SUILEND_BORROWS_ID
+        data_type: VARCHAR
+        description: "{{ doc('suilend_borrows_id') }}"
+        tests:
+          - not_null
+          - unique
+
+      - name: INSERTED_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('inserted_timestamp') }}"
+
+      - name: MODIFIED_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('modified_timestamp') }}"
+
+      - name: _INVOCATION_ID
+        data_type: TEXT
+        description: "{{ doc('_invocation_id') }}"
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          interval: 12
+          field: block_timestamp
+
+  - name: silver_lending__suilend_deposits
+    description: "{{ doc('silver_lending__suilend_deposits') }}"
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: CHECKPOINT_NUMBER
+        data_type: NUMBER(18,0)
+        description: "{{ doc('checkpoint_number') }}"
+        tests:
+          - not_null
+
+      - name: BLOCK_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('block_timestamp') }}"
+        tests:
+          - not_null
+
+      - name: TX_DIGEST
+        data_type: VARCHAR
+        description: "{{ doc('tx_digest') }}"
+        tests:
+          - not_null
+
+      - name: TX_SENDER
+        data_type: VARCHAR
+        description: "{{ doc('tx_sender') }}"
+        tests:
+          - not_null
+
+      - name: EVENT_INDEX
+        data_type: NUMBER(18,0)
+        description: "{{ doc('event_index') }}"
+        tests:
+          - not_null
+
+      - name: TYPE
+        data_type: VARCHAR
+        description: "{{ doc('type') }}"
+
+      - name: EVENT_MODULE
+        data_type: VARCHAR
+        description: "{{ doc('event_module') }}"
+        tests:
+          - not_null
+
+      - name: EVENT_RESOURCE
+        data_type: VARCHAR
+        description: "{{ doc('event_resource') }}"
+
+      - name: PACKAGE_ID
+        data_type: VARCHAR
+        description: "{{ doc('package_id') }}"
+        tests:
+          - not_null
+
+      - name: TRANSACTION_MODULE
+        data_type: VARCHAR
+        description: "{{ doc('transaction_module') }}"
+
+      - name: COIN_TYPE
+        data_type: VARCHAR
+        description: "{{ doc('coin_type') }}"
+        tests:
+          - not_null
+
+      - name: CTOKEN_AMOUNT
+        data_type: NUMBER(38,0)
+        description: "{{ doc('ctoken_amount') }}"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "> 0"
+
+      - name: LENDING_MARKET_ID
+        data_type: VARCHAR
+        description: "{{ doc('lending_market_id') }}"
+        tests:
+          - not_null
+
+      - name: OBLIGATION_ID
+        data_type: VARCHAR
+        description: "{{ doc('obligation_id') }}"
+        tests:
+          - not_null
+
+      - name: RESERVE_ID
+        data_type: VARCHAR
+        description: "{{ doc('reserve_id') }}"
+        tests:
+          - not_null
+
+      - name: SUILEND_DEPOSITS_ID
+        data_type: VARCHAR
+        description: "{{ doc('suilend_deposits_id') }}"
+        tests:
+          - not_null
+          - unique
+
+      - name: INSERTED_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('inserted_timestamp') }}"
+
+      - name: MODIFIED_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('modified_timestamp') }}"
+
+      - name: _INVOCATION_ID
+        data_type: TEXT
+        description: "{{ doc('_invocation_id') }}"
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          interval: 12
+          field: block_timestamp
+
+  - name: silver_lending__suilend_liquidations
+    description: "{{ doc('silver_lending__suilend_liquidations') }}"
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: CHECKPOINT_NUMBER
+        data_type: NUMBER(18,0)
+        description: "{{ doc('checkpoint_number') }}"
+        tests:
+          - not_null
+
+      - name: BLOCK_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('block_timestamp') }}"
+        tests:
+          - not_null
+
+      - name: TX_DIGEST
+        data_type: VARCHAR
+        description: "{{ doc('tx_digest') }}"
+        tests:
+          - not_null
+
+      - name: TX_SENDER
+        data_type: VARCHAR
+        description: "{{ doc('tx_sender') }}"
+        tests:
+          - not_null
+
+      - name: EVENT_INDEX
+        data_type: NUMBER(18,0)
+        description: "{{ doc('event_index') }}"
+        tests:
+          - not_null
+
+      - name: TYPE
+        data_type: VARCHAR
+        description: "{{ doc('type') }}"
+
+      - name: EVENT_MODULE
+        data_type: VARCHAR
+        description: "{{ doc('event_module') }}"
+        tests:
+          - not_null
+
+      - name: EVENT_RESOURCE
+        data_type: VARCHAR
+        description: "{{ doc('event_resource') }}"
+
+      - name: PACKAGE_ID
+        data_type: VARCHAR
+        description: "{{ doc('package_id') }}"
+        tests:
+          - not_null
+
+      - name: TRANSACTION_MODULE
+        data_type: VARCHAR
+        description: "{{ doc('transaction_module') }}"
+
+      - name: LENDING_MARKET_ID
+        data_type: VARCHAR
+        description: "{{ doc('lending_market_id') }}"
+        tests:
+          - not_null
+
+      - name: LIQUIDATOR_BONUS_AMOUNT
+        data_type: NUMBER(38,0)
+        description: "{{ doc('liquidator_bonus_amount') }}"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: OBLIGATION_ID
+        data_type: VARCHAR
+        description: "{{ doc('obligation_id') }}"
+        tests:
+          - not_null
+
+      - name: PROTOCOL_FEE_AMOUNT
+        data_type: NUMBER(38,0)
+        description: "{{ doc('protocol_fee_amount') }}"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: REPAY_AMOUNT
+        data_type: NUMBER(38,0)
+        description: "{{ doc('repay_amount') }}"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "> 0"
+
+      - name: REPAY_COIN_TYPE
+        data_type: VARCHAR
+        description: "{{ doc('repay_coin_type') }}"
+        tests:
+          - not_null
+
+      - name: REPAY_RESERVE_ID
+        data_type: VARCHAR
+        description: "{{ doc('repay_reserve_id') }}"
+        tests:
+          - not_null
+
+      - name: WITHDRAW_AMOUNT
+        data_type: NUMBER(38,0)
+        description: "{{ doc('withdraw_amount') }}"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "> 0"
+
+      - name: WITHDRAW_COIN_TYPE
+        data_type: VARCHAR
+        description: "{{ doc('withdraw_coin_type') }}"
+        tests:
+          - not_null
+
+      - name: WITHDRAW_RESERVE_ID
+        data_type: VARCHAR
+        description: "{{ doc('withdraw_reserve_id') }}"
+        tests:
+          - not_null
+
+      - name: SUILEND_LIQUIDATIONS_ID
+        data_type: VARCHAR
+        description: "{{ doc('suilend_liquidations_id') }}"
+        tests:
+          - not_null
+          - unique
+
+      - name: INSERTED_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('inserted_timestamp') }}"
+
+      - name: MODIFIED_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('modified_timestamp') }}"
+
+      - name: _INVOCATION_ID
+        data_type: TEXT
+        description: "{{ doc('_invocation_id') }}"
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          interval: 12
+          field: block_timestamp
+
+  - name: silver_lending__suilend_repayments
+    description: "{{ doc('silver_lending__suilend_repayments') }}"
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: CHECKPOINT_NUMBER
+        data_type: NUMBER(18,0)
+        description: "{{ doc('checkpoint_number') }}"
+        tests:
+          - not_null
+
+      - name: BLOCK_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('block_timestamp') }}"
+        tests:
+          - not_null
+
+      - name: TX_DIGEST
+        data_type: VARCHAR
+        description: "{{ doc('tx_digest') }}"
+        tests:
+          - not_null
+
+      - name: TX_SENDER
+        data_type: VARCHAR
+        description: "{{ doc('tx_sender') }}"
+        tests:
+          - not_null
+
+      - name: EVENT_INDEX
+        data_type: NUMBER(18,0)
+        description: "{{ doc('event_index') }}"
+        tests:
+          - not_null
+
+      - name: TYPE
+        data_type: VARCHAR
+        description: "{{ doc('type') }}"
+
+      - name: EVENT_MODULE
+        data_type: VARCHAR
+        description: "{{ doc('event_module') }}"
+        tests:
+          - not_null
+
+      - name: EVENT_RESOURCE
+        data_type: VARCHAR
+        description: "{{ doc('event_resource') }}"
+
+      - name: PACKAGE_ID
+        data_type: VARCHAR
+        description: "{{ doc('package_id') }}"
+        tests:
+          - not_null
+
+      - name: TRANSACTION_MODULE
+        data_type: VARCHAR
+        description: "{{ doc('transaction_module') }}"
+
+      - name: COIN_TYPE
+        data_type: VARCHAR
+        description: "{{ doc('coin_type') }}"
+        tests:
+          - not_null
+
+      - name: LENDING_MARKET_ID
+        data_type: VARCHAR
+        description: "{{ doc('lending_market_id') }}"
+        tests:
+          - not_null
+
+      - name: LIQUIDITY_AMOUNT
+        data_type: NUMBER(38,0)
+        description: "{{ doc('liquidity_amount') }}"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "> 0"
+
+      - name: OBLIGATION_ID
+        data_type: VARCHAR
+        description: "{{ doc('obligation_id') }}"
+        tests:
+          - not_null
+
+      - name: RESERVE_ID
+        data_type: VARCHAR
+        description: "{{ doc('reserve_id') }}"
+        tests:
+          - not_null
+
+      - name: SUILEND_REPAYMENTS_ID
+        data_type: VARCHAR
+        description: "{{ doc('suilend_repayments_id') }}"
+        tests:
+          - not_null
+          - unique
+
+      - name: INSERTED_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('inserted_timestamp') }}"
+
+      - name: MODIFIED_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('modified_timestamp') }}"
+
+      - name: _INVOCATION_ID
+        data_type: TEXT
+        description: "{{ doc('_invocation_id') }}"
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          interval: 12
+          field: block_timestamp
+
+  - name: silver_lending__suilend_withdraws
+    description: "{{ doc('silver_lending__suilend_withdraws') }}"
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: CHECKPOINT_NUMBER
+        data_type: NUMBER(18,0)
+        description: "{{ doc('checkpoint_number') }}"
+        tests:
+          - not_null
+
+      - name: BLOCK_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('block_timestamp') }}"
+        tests:
+          - not_null
+
+      - name: TX_DIGEST
+        data_type: VARCHAR
+        description: "{{ doc('tx_digest') }}"
+        tests:
+          - not_null
+
+      - name: TX_SENDER
+        data_type: VARCHAR
+        description: "{{ doc('tx_sender') }}"
+        tests:
+          - not_null
+
+      - name: EVENT_INDEX
+        data_type: NUMBER(18,0)
+        description: "{{ doc('event_index') }}"
+        tests:
+          - not_null
+
+      - name: TYPE
+        data_type: VARCHAR
+        description: "{{ doc('type') }}"
+
+      - name: EVENT_MODULE
+        data_type: VARCHAR
+        description: "{{ doc('event_module') }}"
+        tests:
+          - not_null
+
+      - name: EVENT_RESOURCE
+        data_type: VARCHAR
+        description: "{{ doc('event_resource') }}"
+
+      - name: PACKAGE_ID
+        data_type: VARCHAR
+        description: "{{ doc('package_id') }}"
+        tests:
+          - not_null
+
+      - name: TRANSACTION_MODULE
+        data_type: VARCHAR
+        description: "{{ doc('transaction_module') }}"
+
+      - name: COIN_TYPE
+        data_type: VARCHAR
+        description: "{{ doc('coin_type') }}"
+        tests:
+          - not_null
+
+      - name: CTOKEN_AMOUNT
+        data_type: NUMBER(38,0)
+        description: "{{ doc('ctoken_amount') }}"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "> 0"
+
+      - name: LENDING_MARKET_ID
+        data_type: VARCHAR
+        description: "{{ doc('lending_market_id') }}"
+        tests:
+          - not_null
+
+      - name: OBLIGATION_ID
+        data_type: VARCHAR
+        description: "{{ doc('obligation_id') }}"
+        tests:
+          - not_null
+
+      - name: RESERVE_ID
+        data_type: VARCHAR
+        description: "{{ doc('reserve_id') }}"
+        tests:
+          - not_null
+
+      - name: SUILEND_WITHDRAWS_ID
+        data_type: VARCHAR
+        description: "{{ doc('suilend_withdraws_id') }}"
+        tests:
+          - not_null
+          - unique
+
+      - name: INSERTED_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('inserted_timestamp') }}"
+
+      - name: MODIFIED_TIMESTAMP
+        data_type: TIMESTAMP_NTZ
+        description: "{{ doc('modified_timestamp') }}"
+
+      - name: _INVOCATION_ID
+        data_type: TEXT
+        description: "{{ doc('_invocation_id') }}"
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          interval: 12
+          field: block_timestamp
