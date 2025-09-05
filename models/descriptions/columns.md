@@ -74,6 +74,10 @@ Zero-based index ordering balance changes within a transaction. Tracks the seque
 Fully qualified Move type identifier for coins/tokens. Format: {package}::{module}::{struct}. Example: '0x2::sui::SUI' for native SUI token. Essential for DeFi analytics, token classification, and cross-asset analysis.
 {% enddocs %}
 
+{% docs ctoken_amount %}
+The amount of cTokens (certificate tokens) minted or burned in the transaction. These receipt tokens represent a share of the lending pool and accrue value as interest is earned. The amount is in raw units before decimal adjustment. Used for tracking pool shares and calculating redemption values. Example: 1000000 (1 cToken with 6 decimals).
+{% enddocs %}
+
 {% docs amount %}
 Token quantity in the smallest unit (MIST for SUI). Integer value; 1 SUI = 1,000,000,000 MIST. Used for precise financial calculations, balance tracking, and token flow analysis. Example: 1000000000.
 {% enddocs %}
@@ -738,4 +742,252 @@ Boolean flag indicating whether the input token type was derived from transactio
 
 {% docs token_out_from_txs %}
 Boolean flag indicating whether the output token type was derived from transaction payload data rather than event data. True when the token type could not be determined from the event and was inferred from transaction type arguments. Important for data quality assessment and understanding token identification reliability. Example: true when event data was insufficient for token identification.
+{% enddocs %}
+
+{% docs lending_market_id %}
+The unique identifier of the lending market within SuiLend protocol. Each market represents a distinct lending pool with its own risk parameters, interest models, and collateral requirements. Used to track market-specific metrics, compare performance across markets, and analyze market segmentation. Example: '0xmarket123...'.
+{% enddocs %}
+
+{% docs liquidity_amount %}
+The raw amount of liquidity borrowed from or deposited into the lending pool, expressed in the smallest unit of the asset (not decimal-adjusted). Represents the actual quantity of tokens moved in the transaction before applying decimal precision. Used for precise financial calculations and protocol accounting. Example: 1000000000 (for 1 token with 9 decimals).
+{% enddocs %}
+
+{% docs obligation_id %}
+The unique identifier of a borrower's obligation/position in the SuiLend protocol. Represents the consolidated debt position that tracks all borrows, collateral, and health metrics for a specific user. Essential for position management, liquidation monitoring, and user portfolio analysis. Example: '0xobligation456...'.
+{% enddocs %}
+
+{% docs origination_fee_amount %}
+The origination fee charged for initiating a new borrow, expressed in raw token units. Typically a percentage of the borrowed amount, serving as protocol revenue and risk compensation. Used for fee analysis, protocol revenue tracking, and cost assessment for borrowers. Example: 100000 (0.1% fee on 100M raw units).
+{% enddocs %}
+
+{% docs reserve_id %}
+The unique identifier of the lending reserve in SuiLend. Each reserve manages a specific asset type, maintaining liquidity for lending/borrowing operations with defined interest rate models and risk parameters. Critical for reserve analytics, liquidity tracking, and rate model analysis. Example: '0xreserve789...'.
+{% enddocs %}
+
+{% docs suilend_borrows_id %}
+Unique identifier for each borrow record in the SuiLend protocol, generated from transaction digest and event index. Ensures uniqueness and enables tracking of individual borrow events across the protocol's lifecycle. Example: 'hash123_index0'.
+{% enddocs %}
+
+{% docs lending_pool_address %}
+The on-chain address of the SuiLend lending pool contract. Identifies the specific pool implementation handling deposits, borrows, and liquidations. Used for pool-level analytics, TVL calculations, and smart contract interaction tracking. Example: '0xpool123...'.
+{% enddocs %}
+
+{% docs depositor_address %}
+The Sui address of the user making a deposit into the lending pool. Identifies the liquidity provider earning interest on their supplied assets. Used for depositor analytics, concentration analysis, and yield tracking. Example: '0xdepositor123...'.
+{% enddocs %}
+
+{% docs deposit_asset %}
+The type identifier of the asset being deposited into the lending pool. Fully qualified Move type in format {package}::{module}::{struct}. Essential for multi-asset pool analysis and asset allocation tracking. Example: '0x2::sui::SUI'.
+{% enddocs %}
+
+{% docs deposit_amount_raw %}
+The raw amount deposited into the lending pool, expressed in the smallest unit of the asset. Represents actual tokens supplied before decimal adjustment. Critical for TVL calculations and liquidity analysis. Example: 5000000000 (5 SUI).
+{% enddocs %}
+
+{% docs deposit_rate %}
+The annual percentage yield (APY) or interest rate for deposits at the time of transaction. Represents the return depositors earn on their supplied liquidity. Used for yield analysis and rate comparison. Example: 0.0325 (3.25% APY).
+{% enddocs %}
+
+{% docs shares_minted_raw %}
+The amount of receipt/share tokens minted to represent the deposit position. These tokens accrue value as interest is earned and can be redeemed for the underlying asset plus interest. Example: 1000000 shares.
+{% enddocs %}
+
+{% docs reserve_address %}
+The address of the reserve managing this asset within the lending protocol. Controls interest rate models, collateral factors, and liquidation parameters. Used for reserve-level analytics and configuration tracking. Example: '0xreserve123...'.
+{% enddocs %}
+
+{% docs total_deposits_after %}
+Total amount of the asset deposited in the pool after this transaction, in raw units. Represents the pool's total supplied liquidity available for borrowing. Critical for TVL tracking and utilization calculations. Example: 1000000000000.
+{% enddocs %}
+
+{% docs utilization_rate_after %}
+The pool's utilization rate after this transaction, expressed as a decimal. Calculated as total borrows / total deposits. Drives interest rate models and indicates lending market efficiency. Example: 0.75 (75% utilized).
+{% enddocs %}
+
+{% docs on_behalf_of %}
+The address on whose behalf the deposit is made, if different from the transaction sender. Enables delegated deposits and position management. Used for tracking beneficial ownership and proxy patterns. Example: '0xbeneficiary123...'.
+{% enddocs %}
+
+{% docs referral_code %}
+Referral code used for tracking deposit/borrow origination sources. Enables affiliate programs and user acquisition analytics. Used for marketing attribution and incentive distribution. Example: 'REF123'.
+{% enddocs %}
+
+{% docs is_collateral %}
+Boolean flag indicating whether the deposited asset is enabled as collateral for borrowing. Determines borrowing power and liquidation risk. Critical for risk analysis and collateral management. Example: true.
+{% enddocs %}
+
+{% docs suilend_deposits_id %}
+Unique identifier for each deposit record in the SuiLend protocol, generated from transaction digest and event index. Ensures uniqueness and enables tracking of individual deposit events. Example: 'hash456_index1'.
+{% enddocs %}
+
+{% docs liquidator_address %}
+The Sui address of the account performing the liquidation. Liquidators repay undercollateralized debt in exchange for collateral at a discount. Used for liquidator profitability analysis and MEV studies. Example: '0xliquidator123...'.
+{% enddocs %}
+
+{% docs borrower_address %}
+The Sui address of the borrower whose position is being liquidated or who is taking out a loan. Identifies the account with debt obligations. Used for risk analysis and borrower behavior tracking. Example: '0xborrower123...'.
+{% enddocs %}
+
+{% docs debt_asset %}
+The asset type being repaid during liquidation or regular repayment. Identifies which borrowed asset is being settled. Essential for debt composition analysis and repayment tracking. Example: '0x2::sui::SUI'.
+{% enddocs %}
+
+{% docs debt_amount_repaid_raw %}
+The amount of debt repaid during liquidation, in raw token units. Represents the borrowed asset amount that the liquidator pays to acquire collateral. Used for liquidation volume analysis. Example: 1000000000.
+{% enddocs %}
+
+{% docs collateral_asset %}
+The asset type seized as collateral during liquidation. Identifies which deposited asset is forfeited when a position becomes undercollateralized. Critical for collateral risk analysis. Example: '0xtoken::usdc::USDC'.
+{% enddocs %}
+
+{% docs collateral_amount_seized_raw %}
+The amount of collateral seized during liquidation, in raw token units. Includes the liquidation bonus/discount received by the liquidator. Used for liquidation profitability calculations. Example: 1100000000.
+{% enddocs %}
+
+{% docs liquidation_bonus_raw %}
+The bonus amount received by liquidators as incentive, in raw token units. Represents the discount on collateral that compensates liquidators for maintaining protocol solvency. Example: 100000000 (10% bonus).
+{% enddocs %}
+
+{% docs liquidator_bonus_amount %}
+The bonus amount received by the liquidator as an incentive for performing the liquidation, in raw token units. This is the extra collateral amount beyond the debt repaid that compensates the liquidator. Example: 50000000 (5% bonus on a 1B unit liquidation).
+{% enddocs %}
+
+{% docs repay_amount %}
+The amount of debt repaid during the liquidation, in raw token units. This is the borrowed asset amount that the liquidator pays to the protocol to acquire the collateral. Example: 1000000000 (1 token with 9 decimals).
+{% enddocs %}
+
+{% docs repay_coin_type %}
+The coin/token type being repaid during the liquidation. Identifies which borrowed asset is being settled to clear the undercollateralized debt. Format: {package}::{module}::{struct}. Example: '0x2::sui::SUI'.
+{% enddocs %}
+
+{% docs repay_reserve_id %}
+The reserve ID of the asset being repaid during liquidation. Links to the specific reserve managing this borrowed asset within the lending protocol. Example: '0xreserve123...'.
+{% enddocs %}
+
+{% docs withdraw_amount %}
+The amount of collateral withdrawn/seized during liquidation, in raw token units. This is the collateral asset amount received by the liquidator, including any liquidation bonus. Example: 1050000000 (includes 5% bonus).
+{% enddocs %}
+
+{% docs withdraw_coin_type %}
+The coin/token type being withdrawn as collateral during liquidation. Identifies which deposited asset is being seized from the liquidated position. Format: {package}::{module}::{struct}. Example: '0xtoken::usdc::USDC'.
+{% enddocs %}
+
+{% docs withdraw_reserve_id %}
+The reserve ID of the collateral asset being withdrawn during liquidation. Links to the specific reserve managing this collateral asset. Example: '0xreserve456...'.
+{% enddocs %}
+
+{% docs protocol_fee_amount %}
+The protocol fee charged on the liquidation, in raw token units. This fee goes to the protocol treasury or insurance fund as revenue for maintaining the lending system. Example: 10000000.
+{% enddocs %}
+
+{% docs health_factor_before %}
+The borrower's health factor before liquidation or transaction. Values below 1.0 indicate undercollateralization and liquidation eligibility. Used for risk monitoring and liquidation analysis. Example: 0.95.
+{% enddocs %}
+
+{% docs health_factor_after %}
+The borrower's health factor after liquidation or repayment. Shows position improvement post-transaction. Used for measuring liquidation effectiveness and position recovery. Example: 1.15.
+{% enddocs %}
+
+{% docs protocol_fee_raw %}
+Protocol fee charged on liquidations or other operations, in raw token units. Represents revenue for the protocol treasury or insurance fund. Used for protocol revenue analysis. Example: 50000.
+{% enddocs %}
+
+{% docs receive_atoken %}
+Boolean indicating whether the liquidator receives aTokens (receipt tokens) or the underlying asset. Affects liquidator's position and redemption requirements. Example: false.
+{% enddocs %}
+
+{% docs liquidation_type %}
+The type of liquidation performed (e.g., partial, full, flash). Indicates liquidation strategy and scope. Used for liquidation pattern analysis and efficiency studies. Example: 'partial'.
+{% enddocs %}
+
+{% docs suilend_liquidations_id %}
+Unique identifier for each liquidation record in the SuiLend protocol, generated from transaction digest and event index. Ensures uniqueness and enables tracking of individual liquidation events. Example: 'hash789_index2'.
+{% enddocs %}
+
+{% docs repayer_address %}
+The Sui address making the repayment, which may differ from the borrower (e.g., third-party repayment). Enables debt settlement patterns and proxy repayment analysis. Example: '0xrepayer123...'.
+{% enddocs %}
+
+{% docs repay_asset %}
+The asset type being repaid to settle outstanding debt. Identifies which borrowed asset is being returned to the pool. Essential for repayment flow analysis. Example: '0x2::sui::SUI'.
+{% enddocs %}
+
+{% docs repay_amount_raw %}
+The total amount repaid including principal and interest, in raw token units. Represents the complete payment reducing the debt position. Used for repayment volume tracking. Example: 1050000000.
+{% enddocs %}
+
+{% docs principal_amount_raw %}
+The principal portion of the repayment, in raw token units. Represents the original borrowed amount being repaid, excluding interest. Used for loan amortization analysis. Example: 1000000000.
+{% enddocs %}
+
+{% docs interest_amount_raw %}
+The interest portion of the repayment, in raw token units. Represents accrued interest paid to liquidity providers. Critical for protocol revenue and APY calculations. Example: 50000000.
+{% enddocs %}
+
+{% docs remaining_debt_raw %}
+The outstanding debt balance after repayment, in raw token units. Shows the remaining obligation requiring future settlement. Used for position tracking and risk assessment. Example: 500000000.
+{% enddocs %}
+
+{% docs borrow_rate %}
+The interest rate charged on borrows at the time of transaction. Determines borrowing cost and protocol revenue generation. Used for rate analysis and cost calculations. Example: 0.0525 (5.25% APR).
+{% enddocs %}
+
+{% docs is_full_repayment %}
+Boolean flag indicating whether the repayment fully settles the debt position. Distinguishes between partial and complete loan closures. Used for loan lifecycle analysis. Example: true.
+{% enddocs %}
+
+{% docs use_reserve_funds %}
+Boolean indicating whether protocol reserve funds were used for the repayment. Relevant for protocol treasury operations and emergency procedures. Example: false.
+{% enddocs %}
+
+{% docs rate_mode %}
+The interest rate type for the loan (e.g., stable, variable). Determines how interest accrues over the loan lifetime. Used for rate risk analysis and product usage tracking. Example: 'variable'.
+{% enddocs %}
+
+{% docs suilend_repayments_id %}
+Unique identifier for each repayment record in the SuiLend protocol, generated from transaction digest and event index. Ensures uniqueness and enables tracking of individual repayment events. Example: 'hash012_index3'.
+{% enddocs %}
+
+{% docs withdrawer_address %}
+The Sui address initiating the withdrawal from the lending pool. Identifies the user reclaiming their deposited liquidity plus earned interest. Used for liquidity flow analysis. Example: '0xwithdrawer123...'.
+{% enddocs %}
+
+{% docs recipient_address %}
+The Sui address receiving the withdrawn funds, which may differ from the withdrawer. Enables withdrawal routing and beneficiary tracking. Used for fund flow analysis. Example: '0xrecipient123...'.
+{% enddocs %}
+
+{% docs withdraw_asset %}
+The asset type being withdrawn from the lending pool. Identifies which deposited asset is being reclaimed. Essential for liquidity tracking and asset flow analysis. Example: '0x2::sui::SUI'.
+{% enddocs %}
+
+{% docs withdraw_amount_raw %}
+The amount withdrawn from the pool, in raw token units. Represents deposited principal plus earned interest being reclaimed. Used for liquidity outflow tracking. Example: 1025000000.
+{% enddocs %}
+
+{% docs shares_burned_raw %}
+The amount of receipt/share tokens burned to process the withdrawal. These tokens are exchanged for the underlying asset plus accrued interest. Example: 1000000 shares.
+{% enddocs %}
+
+{% docs interest_earned_raw %}
+The interest earned on the deposit, in raw token units. Represents the yield generated during the deposit period. Used for return calculations and yield analysis. Example: 25000000.
+{% enddocs %}
+
+{% docs withdraw_rate %}
+The exchange rate between shares and underlying assets at withdrawal time. Reflects accumulated interest and protocol performance. Used for yield calculations. Example: 1.025.
+{% enddocs %}
+
+{% docs user_balance_after_raw %}
+The user's remaining balance in the pool after withdrawal, in raw token units. Shows continued exposure to the lending pool. Used for position tracking. Example: 100000000.
+{% enddocs %}
+
+{% docs is_max_withdraw %}
+Boolean indicating whether this is a maximum withdrawal (all available funds). Distinguishes between partial and complete position closures. Used for user behavior analysis. Example: true.
+{% enddocs %}
+
+{% docs is_emergency_withdraw %}
+Boolean flag for emergency withdrawals bypassing normal procedures. Indicates protocol stress conditions or user safety measures. Critical for risk monitoring. Example: false.
+{% enddocs %}
+
+{% docs suilend_withdraws_id %}
+Unique identifier for each withdrawal record in the SuiLend protocol, generated from transaction digest and event index. Ensures uniqueness and enables tracking of individual withdrawal events. Example: 'hash345_index4'.
 {% enddocs %}

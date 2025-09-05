@@ -43,6 +43,26 @@ Fact table decomposing every transaction on the Sui blockchain into its constitu
 Enhanced fact table providing comprehensive cross-chain bridge analytics by consolidating bridge-related events from multiple protocols (Sui Bridge, Wormhole) into a unified dataset. Each row represents a single cross-chain asset movement event enriched with protocol metadata, token information, and USD pricing. Serves as the primary table for cross-chain DeFi analysis, bridge protocol comparison, and capital flow tracking by normalizing bridge events across different protocols into a consistent format. The table automatically applies decimal precision adjustments and USD conversions, enabling direct comparison of bridge volumes and user activity across different chains and token types. Includes complete transaction context, source/destination chain mapping, and protocol identification to support comprehensive cross-chain analytics, security monitoring, and risk assessment. Essential for DeFi dashboards, bridge protocol analysis, and multi-chain ecosystem studies that require unified cross-chain data and standardized bridge event tracking.
 {% enddocs %}
 
+{% docs silver_lending__suilend_borrows %}
+Tracks borrowing events from the SuiLend lending protocol on Sui. Each row represents a single borrow transaction where users obtain liquidity from lending pools against their deposited collateral. Includes the borrowed asset type, liquidity amount, origination fees, and unique identifiers for the lending market, reserve, and borrower obligation. Essential for analyzing lending demand, utilization rates, and risk exposure across SuiLend markets. Enables tracking of individual borrower positions, protocol revenue from origination fees, and overall lending market dynamics.
+{% enddocs %}
+
+{% docs silver_lending__suilend_deposits %}
+Tracks deposit/supply events into SuiLend lending pools. Each row captures when users provide liquidity to the protocol's reserves, earning interest through receipt tokens. Includes deposited asset details, raw amounts, share tokens minted, and utilization metrics post-deposit. Enables analysis of liquidity provision patterns, deposit concentration, yield optimization strategies, and protocol TVL growth. Supports tracking of individual depositor positions, collateral enablement, and the relationship between deposits and protocol utilization rates.
+{% enddocs %}
+
+{% docs silver_lending__suilend_liquidations %}
+Tracks liquidation events in the SuiLend protocol when borrower positions become undercollateralized. Each record documents the liquidation process including the liquidator, borrower, debt repaid, collateral seized, and liquidation bonuses. Captures health factor transitions and protocol fees from liquidation events. Critical for risk management analysis, liquidator profitability assessment, and protocol stability monitoring. Enables tracking of liquidation cascades, market stress conditions, and the effectiveness of risk parameters.
+{% enddocs %}
+
+{% docs silver_lending__suilend_repayments %}
+Tracks loan repayment events in the SuiLend protocol. Each row represents a borrower repaying their outstanding debt, capturing principal and interest components separately. Includes remaining debt balances, health factor improvements, and repayment types (partial vs full). Essential for analyzing borrower behavior, interest accrual patterns, and loan lifecycle dynamics. Supports protocol revenue analysis through interest payments and tracking of position health improvements post-repayment.
+{% enddocs %}
+
+{% docs silver_lending__suilend_withdraws %}
+Tracks withdrawal/redemption events from SuiLend lending pools. Each record captures when depositors reclaim their supplied liquidity plus earned interest by burning receipt tokens. Includes withdrawn amounts, shares burned, interest earned, and post-withdrawal utilization metrics. Enables analysis of liquidity dynamics, depositor returns, and protocol stability under varying withdrawal patterns. Supports tracking of emergency withdrawals, maximum withdrawal events, and the impact of withdrawals on pool utilization and lending rates.
+{% enddocs %}
+
 {% docs defi__ez_dex_swaps %}
 ## Description
 This table provides a comprehensive view of decentralized exchange (DEX) swap activity across the Sui blockchain ecosystem, enriched with token pricing, metadata, and user labels. It consolidates swap events from seven major DEX protocols (Cetus, Turbos, Bluefin, Aftermath AMM, FlowX, DeepBook, and Momentum) into a standardized format with USD valuations, token metadata, and enhanced labeling. The model transforms raw swap data by adding price information, decimal-adjusted amounts, USD volume calculations, and human-readable labels for platforms, pools, and traders. This enables cross-protocol DeFi analytics, volume comparisons, and comprehensive trading pattern analysis.

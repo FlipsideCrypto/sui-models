@@ -32,6 +32,21 @@ dbt test [-s] [dbt_model_name]
 dbt run [-s] [dbt_model_name]
 dbt run [-s] [path/to/dbt/models]
 dbt run [-s] [tag:dbt_model_tag]
+
+# Run models with specific profiles
+dbt run --profile sui [-s] [model_name]
+
+# Update Snowflake tags on models
+dbt run --var '{"UPDATE_SNOWFLAKE_TAGS":True}' [-s] [model_name]
+
+# Run with custom test threshold
+dbt test --var '{"TEST_HOURS_THRESHOLD":48}' [-s] [model_name]
+
+# Build dependencies (packages)
+dbt deps
+
+# Clean artifacts
+dbt clean
 ```
 
 ## Data Modeling with dbt
@@ -160,8 +175,21 @@ Every model must use this pattern:
     materialized = "incremental",
     unique_key = ["field1", "field2"], 
     merge_exclude_columns = ["inserted_timestamp"],
-    tags = ['gold','core']
+    tags = ['gold','core'],
+    cluster_by = ['block_timestamp::DATE'],  -- for fact tables
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION ON EQUALITY(tx_hash, block_id);" -- for gold layer
 ) }}
+```
+
+### Standard Model Fields
+Every model must include these fields:
+```sql
+SELECT
+    -- ... your fields ...
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp,
+    {{ dbt_utils.generate_surrogate_key(['field1', 'field2']) }} AS _id,
+    '{{ invocation_id }}' AS _invocation_id
 ```
 
 ### Incremental Processing Pattern
@@ -172,6 +200,8 @@ All models require proper incremental predicates:
     SELECT MAX(modified_timestamp) 
     FROM {{ this }}
   )
+  -- For bronze models, use dynamic range predicate
+  AND {{ incremental_predicate('_inserted_timestamp') }}
 {% endif %}
 ```
 
@@ -209,3 +239,81 @@ Follow Flipside's 4-section table documentation structure in `models/description
 4. **Commonly-used Fields**: Key fields for analysis
 
 Column documentation must include examples for Sui-specific concepts (objects, checkpoints, Move contracts).
+
+## Key Macros and Utilities
+
+### Streamline Integration
+```sql
+-- Query external streamline tables
+{{ streamline_external_table_query(
+    model = "blocks_realtime",
+    partition_by = ["ROUND(checkpoint_timestamp, -1)"],
+    unique_key = "checkpoint",
+    order_by = ["checkpoint"]
+) }}
+```
+
+### Common Utility Macros
+- `create_sps()` - Creates stored procedures on run start
+- `create_udfs()` - Creates user-defined functions on run start
+- `add_database_or_schema_tags()` - Applies Snowflake tags
+- `sequence_gaps()` - Detects gaps in sequential data (checkpoints)
+- `dynamic_range_predicate()` - Optimizes incremental runs for bronze models
+
+## Directory Structure
+
+```
+models/
+├── bronze/               # Raw views from streamline external tables
+│   ├── api/             # API response data
+│   └── streamline/      # Real-time ingested data
+├── silver/              # Parsed and transformed data
+│   ├── core/           # Core blockchain data (blocks, transactions)
+│   ├── defi/           # DeFi protocol data
+│   └── nft/            # NFT-related data
+├── gold/               # Analytics-ready tables
+│   ├── core/           # fact_ and dim_ tables
+│   ├── defi/           # DeFi analytics tables
+│   ├── nft/            # NFT analytics tables
+│   └── streamline/     # Complete/realtime views
+├── descriptions/       # Documentation markdown files
+│   ├── tables.md      # Table descriptions with 4 standard sections
+│   └── columns.md     # Column-level documentation
+└── tests/             # Custom test definitions
+```
+
+## Common Patterns
+
+### Creating a New Model
+1. Check upstream dependencies with `ref()` and `source()`
+2. Apply standard configuration (incremental, unique_key, tags)
+3. Include all required fields (timestamps, _id, _invocation_id)
+4. Add incremental predicates for efficient processing
+5. Create corresponding .yml file with tests and documentation
+6. Write markdown documentation with 4 standard sections
+
+### Working with External Tables
+```sql
+-- Bronze models typically query external tables
+WITH base AS (
+    SELECT *
+    FROM {{ source('bronze_streamline', 'table_name') }}
+    {% if is_incremental() %}
+    WHERE _inserted_timestamp >= (
+        SELECT MAX(_inserted_timestamp) FROM {{ this }}
+    )
+    {% endif %}
+)
+```
+
+### Model Dependencies Example
+```sql
+-- Silver model referencing bronze
+SELECT * FROM {{ ref('bronze__streamline_checkpoints') }}
+
+-- Gold model referencing silver
+SELECT * FROM {{ ref('silver__transactions') }}
+
+-- EZ view referencing fact table
+SELECT * FROM {{ ref('core__fact_blocks') }}
+```
