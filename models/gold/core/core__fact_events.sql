@@ -42,33 +42,33 @@ WHERE
             {{ this }})
         {% endif %}
 
-        {# {% if is_incremental() %}
-        {% else %}
-            #}
-        UNION ALL
-        SELECT
+{% if is_incremental() %}
+{% else %}
+    UNION ALL
+    SELECT
+        checkpoint_number,
+        block_timestamp,
+        tx_digest,
+        tx_kind,
+        tx_sender,
+        message_version,
+        tx_succeeded,
+        NULL AS event_value,
+        event_index,
+        TYPE,
+        package_id,
+        transaction_module,
+        sender,
+        parsed_json
+    FROM
+        {{ ref('silver__events_backfill') }} A
+        JOIN {{ ref('silver__transactions_backfill') }}
+        b USING (
             checkpoint_number,
-            block_timestamp,
-            tx_digest,
-            tx_kind,
-            tx_sender,
-            message_version,
-            tx_succeeded,
-            NULL AS event_value,
-            event_index,
-            TYPE,
-            package_id,
-            transaction_module,
-            sender,
-            parsed_json
-        FROM
-            {{ ref('silver__events_backfill') }} A
-            JOIN {{ ref('silver__transactions_backfill') }}
-            b USING (
-                checkpoint_number,
-                tx_digest
-            ) {# {% endif %} #}
-    )
+            tx_digest
+        )
+    {% endif %}
+)
 SELECT
     checkpoint_number,
     block_timestamp,
