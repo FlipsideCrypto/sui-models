@@ -7,7 +7,7 @@ SELECT
     epoch,
     DATA
 FROM
-    streamline.sui.checkpoints_backfill
+    {{ source('bronze_streamline', 'checkpoints_backfill') }}
 WHERE
     epoch <= 629
     AND checkpoint_number < 96605300

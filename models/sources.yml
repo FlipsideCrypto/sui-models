@@ -7,6 +7,9 @@ sources:
     tables:
       - name: checkpoints
       - name: transactions
+      - name: checkpoints_backfill
+      - name: transactions_backfill
+      - name: events_backfill
  
   - name: crosschain
     database: "{{ 'crosschain' if target.database == 'SUI' else 'crosschain_dev' }}"

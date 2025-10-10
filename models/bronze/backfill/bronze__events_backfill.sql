@@ -7,7 +7,7 @@ SELECT
     epoch,
     DATA
 FROM
-    streamline.sui.events
+    {{ source('bronze_streamline', 'events_backfill') }}
 WHERE
     epoch <= 629
     AND VALUE: checkpoint :: INT < 96605300
