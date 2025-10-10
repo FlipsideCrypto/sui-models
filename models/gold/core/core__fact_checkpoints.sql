@@ -33,3 +33,24 @@ WHERE
         FROM
             {{ this }})
         {% endif %}
+
+        {# {% if is_incremental() %}
+        {% else %}
+            #}
+        UNION ALL
+        SELECT
+            checkpoint_number,
+            block_timestamp,
+            epoch,
+            checkpoint_digest,
+            previous_digest,
+            network_total_transactions,
+            validator_signature,
+            tx_count,
+            ARRAY_CONSTRUCT() AS transactions_array,
+            {{ dbt_utils.generate_surrogate_key(['checkpoint_number']) }} AS fact_checkpoints_id,
+            SYSDATE() AS inserted_timestamp,
+            SYSDATE() AS modified_timestamp
+        FROM
+            {{ ref('silver__checkpoints_b') }}
+            {# {% endif %} #}
