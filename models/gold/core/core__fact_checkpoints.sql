@@ -52,5 +52,5 @@ WHERE
             SYSDATE() AS inserted_timestamp,
             SYSDATE() AS modified_timestamp
         FROM
-            {{ ref('silver__checkpoints_b') }}
+            {{ ref('silver__checkpoints_backfill') }}
             {# {% endif %} #}

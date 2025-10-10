@@ -50,32 +50,32 @@ WHERE
             {{ this }})
         {% endif %}
 
-{% if is_incremental() %}
-{% else %}
-    UNION ALL
-    SELECT
-    SELECT
-        checkpoint_number,
-        block_timestamp,
-        tx_digest,
-        tx_kind,
-        tx_sender,
-        message_version,
-        tx_fee,
-        tx_succeeded,
-        tx_error,
-        tx_dependencies,
-        gas_used_computation_fee,
-        gas_used_non_refundable_storage_fee,
-        gas_used_storage_fee,
-        gas_used_storage_rebate,
-        gas_price,
-        gas_budget,
-        gas_owner
-    FROM
-        {{ ref('silver__transaction_blocks_b') }}
-    {% endif %}
-)
+        {# {% if is_incremental() %}
+        {% else %}
+            #}
+        UNION ALL
+        SELECT
+            checkpoint_number,
+            block_timestamp,
+            tx_digest,
+            tx_kind,
+            tx_sender,
+            message_version,
+            tx_succeeded,
+            tx_error,
+            tx_dependencies,
+            gas_used_computation_fee,
+            gas_used_non_refundable_storage_fee,
+            gas_used_storage_fee,
+            gas_used_storage_rebate,
+            gas_budget,
+            gas_owner,
+            gas_price,
+            tx_fee
+        FROM
+            {{ ref('silver__transaction_blocks_backfill') }}
+            {# {% endif %} #}
+    )
 SELECT
     checkpoint_number,
     block_timestamp,

@@ -9,5 +9,5 @@ SELECT
 FROM
     streamline.sui.transactions_backfill
 WHERE
-    epoch = 700
-    AND VALUE :checkpoint :: INT = 121932315
+    epoch <= 629
+    AND checkpoint_number < 96605300

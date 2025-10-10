@@ -5,10 +5,9 @@
 WITH parsed_checkpoint_data AS (
 
     SELECT
-        -- Parse the VALUE JSON column
         PARSE_JSON(VALUE) AS value_json
     FROM
-        sui_dev.bronze.checkpoints_backfill
+        {{ ref('bronze__checkpoints_backfill') }}
 )
 SELECT
     value_json :sequence_number :: NUMBER AS checkpoint_number,
@@ -20,6 +19,8 @@ SELECT
     value_json :previous_checkpoint_digest :: STRING previous_digest,
     value_json :network_total_transaction :: STRING network_total_transactions,
     value_json :validator_signature :: STRING AS validator_signature,
-    value_json :total_transactions :: INT AS tx_count
+    value_json :total_transactions :: INT AS tx_count,
+    SYSDATE() AS inserted_timestamp,
+    '{{ invocation_id }}' AS _invocation_id
 FROM
     parsed_checkpoint_data

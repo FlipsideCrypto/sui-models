@@ -13,7 +13,7 @@ WITH base AS (
             VALUE :effects_json
         ) AS efx_json
     FROM
-        sui_dev.bronze.transactions_backfill
+        {{ ref('bronze__transactions_backfill') }}
 )
 SELECT
     value_json :checkpoint :: NUMBER AS checkpoint_number,
@@ -43,6 +43,8 @@ SELECT
     ) / pow(
         10,
         9
-    ) AS tx_fee
+    ) AS tx_fee,
+    SYSDATE() AS inserted_timestamp,
+    '{{ invocation_id }}' AS _invocation_id
 FROM
     base
