@@ -13,4 +13,4 @@ FROM
     ) }}
 WHERE
     epoch <= 629
-    AND checkpoint_number < 96605300 {# AND epoch = 628 #}
+    AND VALUE: sequence_number :: INT < 96605300

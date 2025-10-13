@@ -3,13 +3,14 @@ version: 2
 sources:
   - name: bronze_streamline
     database: streamline
-    schema: "{{ 'sui' if target.database == 'SUI' else 'sui_dev' }}"
+    schema: sui
+    # "{{ 'sui' if target.database == 'SUI' else 'sui_dev' }}"
     tables:
       - name: checkpoints
       - name: transactions
       - name: checkpoints_backfill
       - name: transactions_backfill
-      - name: events_backfill
+      - name: events
  
   - name: crosschain
     database: "{{ 'crosschain' if target.database == 'SUI' else 'crosschain_dev' }}"

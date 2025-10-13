@@ -34,7 +34,11 @@ SELECT
     value_json: transaction_digest :: STRING AS tx_digest,
     value_json: "transaction_kind" :: STRING AS tx_kind,
     value_json :"sender" :: STRING AS tx_sender,
-    transaction_json :"data" [0] :"intent_message" :"intent" :"version" :: STRING AS message_version,
+    LOWER(
+        object_keys(
+            transaction_json :"data" [0] :"intent_message" :value
+        ) [0]
+    ) :: STRING AS message_version,
     CASE
         WHEN efx_json :"V2" :"status" = 'Success' THEN TRUE
         ELSE FALSE

@@ -7,7 +7,10 @@ SELECT
     epoch,
     DATA
 FROM
-    {{ source('bronze_streamline', 'transactions_backfill') }}
+    {{ source(
+        'bronze_streamline',
+        'transactions_backfill'
+    ) }}
 WHERE
     epoch <= 629
-    AND checkpoint_number < 96605300
+    AND VALUE: checkpoint :: INT < 96605300
