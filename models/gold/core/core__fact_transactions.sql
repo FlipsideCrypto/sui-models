@@ -40,7 +40,25 @@ WHERE
         FROM
             {{ this }})
         {% endif %}
-    )
+
+{% if is_incremental() %}
+{% else %}
+    UNION ALL
+    SELECT
+        checkpoint_number,
+        block_timestamp,
+        tx_digest,
+        tx_kind,
+        tx_sender,
+        message_version,
+        tx_succeeded,
+        payload_index,
+        payload_type,
+        payload_details
+    FROM
+        {{ ref('silver__transactions_backfill') }}
+    {% endif %}
+)
 SELECT
     checkpoint_number,
     block_timestamp,
