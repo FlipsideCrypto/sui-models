@@ -55,10 +55,10 @@ WHERE
         tx_succeeded,
         NULL AS event_value,
         event_index,
-        TYPE,
         package_id,
         transaction_module,
         sender,
+        TYPE,
         parsed_json
     FROM
         {{ ref('silver__events_backfill') }} A
