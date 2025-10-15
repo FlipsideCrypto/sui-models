@@ -62,7 +62,7 @@ WHERE
         parsed_json
     FROM
         {{ ref('silver__events_backfill') }} A
-        JOIN {{ ref('silver__transactions_backfill') }}
+        JOIN {{ ref('silver__transaction_blocks_backfill') }}
         b USING (
             checkpoint_number,
             tx_digest
