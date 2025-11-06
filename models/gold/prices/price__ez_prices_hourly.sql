@@ -78,7 +78,7 @@ SELECT
         is_verified,
         FALSE
     ) AS token_is_verified,
-    {{ dbt_utils.generate_surrogate_key(['complete_token_prices_id']) }} AS ez_prices_hourly_id,
+    {{ dbt_utils.generate_surrogate_key(['token_address','hour']) }} AS ez_prices_hourly_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
