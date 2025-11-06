@@ -9,6 +9,57 @@
     tags = ['gold_prices','core']
 ) }}
 
+WITH base AS (
+
+    SELECT
+        *
+    FROM
+        {{ ref('silver__complete_token_prices') }}
+
+{% if is_incremental() %}
+WHERE
+    modified_timestamp > (
+        SELECT
+            COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP) AS modified_timestamp
+        FROM
+            {{ this }})
+        {% endif %}
+    ),
+    fin AS (
+        SELECT
+            HOUR,
+            token_address,
+            symbol,
+            NAME,
+            decimals,
+            price,
+            blockchain,
+            is_deprecated,
+            is_imputed,
+            is_verified,
+            complete_token_prices_id,
+            modified_timestamp
+        FROM
+            base
+        UNION ALL
+        SELECT
+            HOUR,
+            '0x2::sui::SUI' AS token_address,
+            symbol,
+            NAME,
+            decimals,
+            price,
+            blockchain,
+            is_deprecated,
+            is_imputed,
+            is_verified,
+            complete_token_prices_id,
+            modified_timestamp
+        FROM
+            base
+        WHERE
+            token_address = '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI'
+    )
 SELECT
     HOUR,
     token_address,
@@ -31,13 +82,9 @@ SELECT
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp
 FROM
-    {{ ref('silver__complete_token_prices') }}
-
-{% if is_incremental() %}
-WHERE
-    modified_timestamp > (
-        SELECT
-            COALESCE(MAX(modified_timestamp), '1970-01-01' :: TIMESTAMP) AS modified_timestamp
-        FROM
-            {{ this }})
-        {% endif %}
+    fin qualify ROW_NUMBER() over (
+        PARTITION BY HOUR,
+        token_address
+        ORDER BY
+            modified_timestamp DESC
+    ) = 1
